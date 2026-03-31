@@ -1,6 +1,10 @@
 # Submission Template
 
-Use this as a starting point for your repo's README. Delete what you don't need, add what you want.
+Use this as a starting point for your repo's README in your fork of this challenge.
+
+When you're finished, send the link to your repo to your contact at **OPENLANE**.
+
+Delete what you don't need, add what you want.
 
 ---
 

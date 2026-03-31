@@ -59,8 +59,10 @@ These are optional. Only do them if the basics are solid.
 
 ## What to Submit
 
-1. A **GitHub repo** (public, or invite our team)
-2. A **README** in your repo with setup instructions and notable decisions
+1. **Fork this repo** to your own GitHub account
+2. Complete the challenge work in your fork
+3. Include a **README** in your repo with setup instructions and notable decisions
+4. When you're finished, share the link to your repo with your contact at **OPENLANE**
 
 We've included a [submission template](SUBMISSION.md) if you want a starting point.
 
