@@ -1,6 +1,34 @@
-node_modules/
+# Environment
 .env
 .env.local
+.env.*.local
+
+# Node
+node_modules/
+dist/
+
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
+
+# Vercel
+.vercel/
+
+# OS
 .DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+.vscode/*
+*.swp
+*.swo
+
+# Misc
 *.log
 *.bak
+.mcp.json
+.claude/
+skills-lock.json
+CLAUDE.md
