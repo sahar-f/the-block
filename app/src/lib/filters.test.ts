@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { FilterState, Vehicle } from "../types";
-import { applyFilters, parseFilters, serializeFilters } from "./filters";
+import {
+	applyFilters,
+	hasActiveFilters,
+	parseFilters,
+	serializeFilters,
+} from "./filters";
 
 function makeVehicle(overrides: Partial<Vehicle> = {}): Vehicle {
 	return {
@@ -236,5 +241,35 @@ describe("applyFilters", () => {
 		const copy = [...vehicles];
 		applyFilters(vehicles, defaultFilters, now);
 		expect(vehicles).toEqual(copy);
+	});
+});
+
+describe("hasActiveFilters", () => {
+	it("returns false for default filters", () => {
+		expect(hasActiveFilters(defaultFilters)).toBe(false);
+	});
+
+	it("returns true when query is non-empty", () => {
+		expect(hasActiveFilters({ ...defaultFilters, query: "Ford" })).toBe(true);
+	});
+
+	it("returns true when array filter has entries", () => {
+		expect(hasActiveFilters({ ...defaultFilters, bodyStyle: ["SUV"] })).toBe(
+			true,
+		);
+	});
+
+	it("returns true when priceMin is set", () => {
+		expect(hasActiveFilters({ ...defaultFilters, priceMin: 10000 })).toBe(true);
+	});
+
+	it("returns true when conditionMax is set", () => {
+		expect(hasActiveFilters({ ...defaultFilters, conditionMax: 4 })).toBe(true);
+	});
+
+	it("ignores sort option (sort is not a filter)", () => {
+		expect(hasActiveFilters({ ...defaultFilters, sort: "price_asc" })).toBe(
+			false,
+		);
 	});
 });

@@ -31,4 +31,6 @@ Desktop.ini
 .mcp.json
 .claude/
 skills-lock.json
+docs/superpowers
+.playwright-mcp
 CLAUDE.md

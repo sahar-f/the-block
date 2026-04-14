@@ -3,3 +3,4 @@ export const AUCTION_DURATION_MS = 4 * 60 * 60 * 1000; // 4 hours
 export const CLOCK_INTERVAL_MS = 1000;
 export const AWAY_THRESHOLD_MS = 30_000; // detect sleep/background gap
 export const SEARCH_DEBOUNCE_MS = 300;
+export const ENDING_SOON_MS = 60 * 60 * 1000; // live auctions within this window count as "ending soon"

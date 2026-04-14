@@ -1,7 +1,9 @@
 import type { AuctionStatus, FilterState, SortOption, Vehicle } from "../types";
 import { getAuctionStatus, parseAuctionStart } from "./auction";
+import { getDisplayPrice } from "./format";
 
 const DEFAULT_SORT: SortOption = "ending_soon";
+const MAX_QUERY_LENGTH = 200;
 
 const VALID_SORTS = new Set<SortOption>([
 	"price_asc",
@@ -25,8 +27,6 @@ function parseCommaSeparated(value: string | null): string[] {
 		.map((s) => s.trim())
 		.filter(Boolean);
 }
-
-const MAX_QUERY_LENGTH = 200;
 
 function parseNumber(
 	value: string | null,
@@ -62,6 +62,23 @@ export function parseFilters(searchParams: URLSearchParams): FilterState {
 		conditionMax: parseNumber(searchParams.get("conditionMax"), 5),
 		sort: sort && VALID_SORTS.has(sort) ? sort : DEFAULT_SORT,
 	};
+}
+
+export function hasActiveFilters(filters: FilterState): boolean {
+	return (
+		filters.query !== "" ||
+		filters.bodyStyle.length > 0 ||
+		filters.province.length > 0 ||
+		filters.drivetrain.length > 0 ||
+		filters.fuelType.length > 0 ||
+		filters.transmission.length > 0 ||
+		filters.titleStatus.length > 0 ||
+		filters.auctionStatus.length > 0 ||
+		filters.priceMin !== null ||
+		filters.priceMax !== null ||
+		filters.conditionMin !== null ||
+		filters.conditionMax !== null
+	);
 }
 
 export function serializeFilters(filters: FilterState): URLSearchParams {
@@ -145,8 +162,8 @@ export function applyFilters(
 			if (!filters.auctionStatus.includes(status)) return false;
 		}
 
-		const price = v.current_bid ?? v.starting_bid;
-		if (!matchesRange(price, filters.priceMin, filters.priceMax)) return false;
+		if (!matchesRange(getDisplayPrice(v), filters.priceMin, filters.priceMax))
+			return false;
 
 		if (
 			!matchesRange(
@@ -172,16 +189,10 @@ function sortVehicles(
 
 	switch (sort) {
 		case "price_asc":
-			sorted.sort(
-				(a, b) =>
-					(a.current_bid ?? a.starting_bid) - (b.current_bid ?? b.starting_bid),
-			);
+			sorted.sort((a, b) => getDisplayPrice(a) - getDisplayPrice(b));
 			break;
 		case "price_desc":
-			sorted.sort(
-				(a, b) =>
-					(b.current_bid ?? b.starting_bid) - (a.current_bid ?? a.starting_bid),
-			);
+			sorted.sort((a, b) => getDisplayPrice(b) - getDisplayPrice(a));
 			break;
 		case "year_desc":
 			sorted.sort((a, b) => b.year - a.year);

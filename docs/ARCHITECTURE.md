@@ -21,7 +21,7 @@ src/
     FilterPanel.tsx         (+test)
     ImageGallery.tsx        (+test)
     SearchBar.tsx           (+test)
-    Skeleton.tsx            (+test)
+    Skeleton.tsx            (+test) 
     SortSelect.tsx          (+test)
     SpecsPanel.tsx          (+test)
     VehicleCard.tsx         (+test)

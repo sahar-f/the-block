@@ -2,14 +2,18 @@ import { useMemo, useSyncExternalStore } from "react";
 import * as dataStore from "../lib/dataStore";
 import { applyFilters } from "../lib/filters";
 import type { FilterState, Vehicle } from "../types";
-import { useNow } from "./useNow";
 
-export function useVehicles(filters: FilterState): {
+type UseVehiclesResult = {
 	data: Vehicle[];
+	allVehicles: Vehicle[];
 	isLoading: boolean;
 	error: string | null;
-} {
-	const now = useNow();
+};
+
+export function useVehicles(
+	filters: FilterState,
+	now: number,
+): UseVehiclesResult {
 	// Safe to read outside useSyncExternalStore — see useVehicle.ts comment
 	const allVehicles = useSyncExternalStore(
 		dataStore.subscribe,
@@ -24,5 +28,5 @@ export function useVehicles(filters: FilterState): {
 		[allVehicles, filters, now],
 	);
 
-	return { data, isLoading, error };
+	return { data, allVehicles, isLoading, error };
 }
