@@ -8,6 +8,8 @@ export default mergeConfig(
 			environment: "jsdom",
 			setupFiles: ["./src/test-setup.ts"],
 			passWithNoTests: true,
+			// Playwright e2e specs live in /tests; Vitest only runs co-located unit/component tests.
+			include: ["src/**/*.{test,spec}.{ts,tsx}"],
 		},
 	}),
 );
