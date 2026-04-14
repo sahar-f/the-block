@@ -73,7 +73,7 @@ async function initSupabase(): Promise<void> {
 }
 
 async function initFallback(): Promise<void> {
-	const raw = (await import("../../../data/vehicles.json"))
+	const raw = (await import("../../data/vehicles.json"))
 		.default as Vehicle[];
 	vehicles = normalizeAuctionTimes(raw);
 }
