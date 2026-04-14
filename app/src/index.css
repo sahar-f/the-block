@@ -30,6 +30,10 @@
 	--color-border-hover: #3f3f46;
 }
 
+@utility bg-page-atmosphere {
+	background: radial-gradient(ellipse at top center, #0f0f12 0%, #09090b 70%);
+}
+
 @keyframes shimmer {
 	0% {
 		background-position: -200% 0;

@@ -1,5 +1,13 @@
 import type { AuctionState, Vehicle } from "../types";
-import { AUCTION_DURATION_MS } from "./constants";
+import { AUCTION_DURATION_MS, MIN_BID_INCREMENT } from "./constants";
+
+/**
+ * Minimum bid for a vehicle: current_bid + MIN_BID_INCREMENT, or starting_bid when no bids yet.
+ */
+export function getMinimumBid(vehicle: Vehicle): number {
+	if (vehicle.current_bid === null) return vehicle.starting_bid;
+	return vehicle.current_bid + MIN_BID_INCREMENT;
+}
 
 export function parseAuctionStart(iso: string): number {
 	return new Date(iso).getTime();

@@ -1,6 +1,9 @@
 import { useCallback, useState } from "react";
-import { getAuctionStatus, parseAuctionStart } from "../lib/auction";
-import { MIN_BID_INCREMENT } from "../lib/constants";
+import {
+	getAuctionStatus,
+	getMinimumBid,
+	parseAuctionStart,
+} from "../lib/auction";
 import * as dataStore from "../lib/dataStore";
 import type { Bid, BidError } from "../types";
 
@@ -42,10 +45,7 @@ export function useBid(vehicleId: string): {
 				return;
 			}
 
-			const minimum =
-				vehicle.current_bid !== null
-					? vehicle.current_bid + MIN_BID_INCREMENT
-					: vehicle.starting_bid;
+			const minimum = getMinimumBid(vehicle);
 
 			if (amount < minimum) {
 				setError({

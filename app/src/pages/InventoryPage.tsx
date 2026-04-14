@@ -35,7 +35,7 @@ export function InventoryPage() {
 	}
 
 	return (
-		<div className="bg-[radial-gradient(ellipse_at_top_center,#0F0F12_0%,#09090B_70%)]">
+		<div className="bg-page-atmosphere">
 			<div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-10 xl:px-12">
 				<header className="mb-6">
 					<div className="flex items-center gap-3">
