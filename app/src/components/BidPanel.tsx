@@ -5,7 +5,12 @@ import {
 	getMinimumBid,
 	parseAuctionStart,
 } from "../lib/auction";
-import { AWAY_THRESHOLD_MS, MIN_BID_INCREMENT } from "../lib/constants";
+import { cn } from "../lib/cn";
+import {
+	AWAY_THRESHOLD_MS,
+	MIN_BID_INCREMENT,
+	PRICE_FLASH_MS,
+} from "../lib/constants";
 import {
 	formatCurrency,
 	formatTimeRemaining,
@@ -78,16 +83,39 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 		prevTimeRemaining.current = auctionState.timeRemaining;
 	}, [auctionState.status, auctionState.timeRemaining]);
 
+	// Real-time signal: flash the price briefly when current_bid changes
+	// (e.g., another bidder places a bid while this component is mounted).
+	const prevCurrentBid = useRef<number | null>(vehicle.current_bid);
+	const [priceFlash, setPriceFlash] = useState(false);
+
+	useEffect(() => {
+		const prev = prevCurrentBid.current;
+		prevCurrentBid.current = vehicle.current_bid;
+		if (prev === null || vehicle.current_bid === null) return;
+		if (vehicle.current_bid === prev) return;
+		setPriceFlash(true);
+		const timer = window.setTimeout(() => {
+			setPriceFlash(false);
+		}, PRICE_FLASH_MS);
+		return () => {
+			window.clearTimeout(timer);
+		};
+	}, [vehicle.current_bid]);
+
 	const reserve = getReserveLabel(vehicle);
 	const displayPrice = getDisplayPrice(vehicle);
 	const hasCurrentBid = vehicle.current_bid !== null;
 
+	// Parse typed bid amount once; used for both below-min indicator and submit preview.
+	const parsedAmount = Number.parseInt(amount, 10);
+	const amountBelowMin = Number.isFinite(parsedAmount) && parsedAmount < minBid;
+	const safeAmount = Number.isFinite(parsedAmount) ? parsedAmount : minBid;
+
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		const n = Number.parseInt(amount, 10);
 		// Defense-in-depth: useBid also validates, but block obviously-invalid amounts locally.
-		if (!Number.isInteger(n) || n < minBid) return;
-		void submit(n);
+		if (!Number.isInteger(parsedAmount) || parsedAmount < minBid) return;
+		void submit(parsedAmount);
 	}
 
 	function handleBuyNow() {
@@ -101,8 +129,6 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 
 	const showBidControls = auctionState.status === "live";
 	const showBuyNow = showBidControls && vehicle.buy_now_price !== null;
-	const parsedAmount = Number.parseInt(amount, 10);
-	const safeAmount = Number.isFinite(parsedAmount) ? parsedAmount : minBid;
 
 	const countdownLabel =
 		auctionState.status === "upcoming"
@@ -128,7 +154,12 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 						Starting bid
 					</p>
 				) : null}
-				<p className="font-mono text-3xl font-semibold text-accent">
+				<p
+					className={cn(
+						"font-mono text-3xl font-semibold text-accent",
+						priceFlash && "flash-accent",
+					)}
+				>
 					{formatCurrency(displayPrice)}
 				</p>
 				<p className="text-sm text-text-muted">
@@ -168,12 +199,23 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 							min={minBid}
 							step={MIN_BID_INCREMENT}
 							value={amount}
+							aria-invalid={amountBelowMin ? "true" : undefined}
+							aria-describedby="bid-amount-hint"
 							onChange={(e) => {
 								setAmount(e.target.value);
 							}}
-							className="w-full rounded-lg border border-border bg-page px-3 py-2.5 font-mono text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500"
+							className={cn(
+								"w-full rounded-lg border bg-page px-3 py-2.5 font-mono text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500",
+								amountBelowMin ? "border-error" : "border-border",
+							)}
 						/>
-						<p className="mt-1 text-xs text-text-muted">
+						<p
+							id="bid-amount-hint"
+							className={cn(
+								"mt-1 text-xs",
+								amountBelowMin ? "text-error" : "text-text-muted",
+							)}
+						>
 							Minimum: {formatCurrency(minBid)}
 						</p>
 					</div>

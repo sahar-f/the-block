@@ -131,28 +131,77 @@ export async function submitBid(
 
 	if (supabase) {
 		try {
-			const { data: rpcData, error: rpcError } = await supabase
-				.rpc("place_bid", {
-					p_vehicle_id: vehicleId,
-					p_amount: amount,
-					p_bidder_session: session,
-				} as Record<string, unknown>)
+			// 1. INSERT into bids
+			const { data: insertedBid, error: insertError } = await supabase
+				.from("bids")
+				.insert({
+					vehicle_id: vehicleId,
+					amount,
+					bidder_session: session,
+				})
+				.select("id, vehicle_id, amount, bidder_session, created_at")
 				.single();
 
-			if (rpcError) {
+			if (insertError || !insertedBid) {
 				return {
 					success: false,
-					error: { type: "network", message: rpcError.message },
+					error: {
+						type: "network",
+						message: insertError?.message ?? "Failed to record bid.",
+					},
 				};
 			}
 
-			const row = rpcData as Record<string, string> | null;
+			// 2. UPDATE vehicles.data — patch current_bid + bid_count.
+			//    The local `vehicles` array has a NORMALIZED auction_start (shifted
+			//    by normalizeOffset). Writing that back would corrupt the DB date.
+			//    So re-fetch the original JSON from Supabase before patching.
+			const { data: dbRow, error: readError } = await supabase
+				.from("vehicles")
+				.select("data")
+				.eq("id", vehicleId)
+				.single();
+
+			if (readError || !dbRow) {
+				return {
+					success: false,
+					error: {
+						type: "network",
+						message: readError?.message ?? "Vehicle not found.",
+					},
+				};
+			}
+
+			const originalData = dbRow.data as Vehicle;
+			const { error: updateError } = await supabase
+				.from("vehicles")
+				.update({
+					data: {
+						...originalData,
+						current_bid: amount,
+						bid_count: (originalData.bid_count ?? 0) + 1,
+					},
+				})
+				.eq("id", vehicleId);
+
+			if (updateError) {
+				return {
+					success: false,
+					error: {
+						type: "network",
+						message: updateError.message,
+					},
+				};
+			}
+
+			// The real-time subscription on the vehicles table will catch this
+			// UPDATE and notify subscribers via applyOffset, so local state refreshes.
 			const bid: Bid = {
-				id: row?.id ?? crypto.randomUUID(),
+				id: String(insertedBid.id),
 				vehicle_id: vehicleId,
 				amount,
 				bidder_session: session,
-				created_at: row?.created_at ?? new Date().toISOString(),
+				created_at: String(insertedBid.created_at),
 			};
 
 			return { success: true, bid };

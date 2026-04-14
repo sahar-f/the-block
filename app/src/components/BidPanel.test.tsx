@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { Bid, BidError, Vehicle } from "../types";
 
@@ -289,5 +289,86 @@ describe("BidPanel", () => {
 		const submitBtn = screen.getByRole("button", { name: /place a bid/i });
 		fireEvent.click(submitBtn);
 		expect(mockSubmit).toHaveBeenCalledWith(15200);
+	});
+
+	it("shows below-min visual indicator when typed amount is less than minimum", () => {
+		render(
+			<BidPanel
+				vehicle={makeVehicle({ current_bid: 15000 })}
+				now={Date.now()}
+			/>,
+		);
+		const input = screen.getByLabelText(/your bid/i) as HTMLInputElement;
+		// Typed amount is below min (15,100). Input must signal below-min via aria-invalid
+		// and via a distinctive class (error border).
+		fireEvent.change(input, { target: { value: "14000" } });
+		expect(input.getAttribute("aria-invalid")).toBe("true");
+		expect(input.className).toContain("border-error");
+	});
+
+	it("clears below-min indicator once typed amount reaches minimum", () => {
+		render(
+			<BidPanel
+				vehicle={makeVehicle({ current_bid: 15000 })}
+				now={Date.now()}
+			/>,
+		);
+		const input = screen.getByLabelText(/your bid/i) as HTMLInputElement;
+		fireEvent.change(input, { target: { value: "14000" } });
+		expect(input.getAttribute("aria-invalid")).toBe("true");
+		fireEvent.change(input, { target: { value: "15100" } });
+		expect(input.getAttribute("aria-invalid")).not.toBe("true");
+		expect(input.className).not.toContain("border-error");
+	});
+
+	it("flashes the price element briefly when current_bid updates", () => {
+		const { rerender } = render(
+			<BidPanel
+				vehicle={makeVehicle({ current_bid: 15000 })}
+				now={Date.now()}
+			/>,
+		);
+		const initialPrice = screen.getByText("$15,000");
+		// Initial mount: no flash class
+		expect(initialPrice.className).not.toContain("flash-accent");
+
+		// current_bid updates (simulates real-time bid arriving)
+		rerender(
+			<BidPanel
+				vehicle={makeVehicle({ current_bid: 15500, bid_count: 4 })}
+				now={Date.now()}
+			/>,
+		);
+		const newPrice = screen.getByText("$15,500");
+		expect(newPrice.className).toContain("flash-accent");
+	});
+
+	it("removes the flash class after PRICE_FLASH_MS", async () => {
+		vi.useFakeTimers();
+		try {
+			const { rerender } = render(
+				<BidPanel
+					vehicle={makeVehicle({ current_bid: 15000 })}
+					now={Date.now()}
+				/>,
+			);
+			rerender(
+				<BidPanel
+					vehicle={makeVehicle({ current_bid: 15500, bid_count: 4 })}
+					now={Date.now()}
+				/>,
+			);
+			expect(screen.getByText("$15,500").className).toContain("flash-accent");
+
+			await act(async () => {
+				vi.advanceTimersByTime(700);
+			});
+
+			expect(screen.getByText("$15,500").className).not.toContain(
+				"flash-accent",
+			);
+		} finally {
+			vi.useRealTimers();
+		}
 	});
 });

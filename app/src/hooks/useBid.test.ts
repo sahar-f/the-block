@@ -120,6 +120,25 @@ describe("useBid", () => {
 		});
 	});
 
+	it("rejects bid when auction is upcoming (not yet live)", async () => {
+		mockSubmitBid.mockClear();
+		const upcoming = makeLiveVehicle({
+			auction_start: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+		});
+		mockGetVehicle.mockReturnValue(upcoming);
+		const { result } = renderHook(() => useBid("v1"));
+
+		await act(async () => {
+			await result.current.submit(50000);
+		});
+
+		expect(result.current.error).toEqual({
+			type: "auction_ended",
+			message: expect.stringContaining("ended"),
+		});
+		expect(mockSubmitBid).not.toHaveBeenCalled();
+	});
+
 	it("rejects bid when auction has ended", async () => {
 		mockGetVehicle.mockReturnValue(makeEndedVehicle());
 		const { result } = renderHook(() => useBid("v1"));
