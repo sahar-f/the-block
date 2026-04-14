@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import type { BidAction } from "../hooks/useBid";
 import type { Bid, BidError, Vehicle } from "../types";
 
 vi.mock("../lib/auction", async () => {
@@ -22,12 +23,14 @@ const mockBidState: {
 	isPending: boolean;
 	error: BidError | null;
 	lastBid: Bid | null;
+	lastAction: BidAction | null;
 } = {
 	submit: mockSubmit,
 	buyNow: mockBuyNow,
 	isPending: false,
 	error: null,
 	lastBid: null,
+	lastAction: null,
 };
 
 vi.mock("../hooks/useBid", () => ({
@@ -76,6 +79,7 @@ function resetBidState() {
 	mockBidState.isPending = false;
 	mockBidState.error = null;
 	mockBidState.lastBid = null;
+	mockBidState.lastAction = null;
 	mockSubmit.mockReset();
 	mockBuyNow.mockReset();
 	vi.mocked(getAuctionStatus).mockReturnValue({
@@ -370,5 +374,52 @@ describe("BidPanel", () => {
 		} finally {
 			vi.useRealTimers();
 		}
+	});
+
+	it("shows 'Sold to you' state and hides the bid form after Buy Now succeeds", () => {
+		mockBidState.lastBid = {
+			id: "bid-1",
+			vehicle_id: "v1",
+			amount: 50000,
+			bidder_session: "session-1",
+			created_at: "2026-04-14T00:00:00Z",
+		};
+		mockBidState.lastAction = "buy_now";
+		render(
+			<BidPanel
+				vehicle={makeVehicle({ buy_now_price: 50000, current_bid: 50000 })}
+				now={Date.now()}
+			/>,
+		);
+		const soldStatus = screen.getByRole("status");
+		expect(soldStatus).toHaveTextContent(/sold to you/i);
+		expect(soldStatus).toHaveTextContent("$50,000");
+		// Bid form is hidden — no Place Bid button or input
+		expect(screen.queryByLabelText(/your bid/i)).toBeNull();
+		expect(screen.queryByRole("button", { name: /place a bid/i })).toBeNull();
+		expect(screen.queryByRole("button", { name: /buy now/i })).toBeNull();
+	});
+
+	it("after a regular bid, still shows the bid form with 'Bid placed!' confirmation", () => {
+		mockBidState.lastBid = {
+			id: "bid-1",
+			vehicle_id: "v1",
+			amount: 15100,
+			bidder_session: "session-1",
+			created_at: "2026-04-14T00:00:00Z",
+		};
+		mockBidState.lastAction = "bid";
+		render(
+			<BidPanel
+				vehicle={makeVehicle({ current_bid: 15100 })}
+				now={Date.now()}
+			/>,
+		);
+		expect(screen.getByText(/bid placed/i)).toBeInTheDocument();
+		// Form still visible — user can bid again
+		expect(screen.getByLabelText(/your bid/i)).toBeInTheDocument();
+		expect(
+			screen.getByRole("button", { name: /place a bid/i }),
+		).toBeInTheDocument();
 	});
 });

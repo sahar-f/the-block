@@ -1,3 +1,4 @@
+import { CheckCircle } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useBid } from "../hooks/useBid";
 import {
@@ -61,7 +62,9 @@ function errorMessage(error: BidError): string {
 export function BidPanel({ vehicle, now }: BidPanelProps) {
 	const auctionStart = parseAuctionStart(vehicle.auction_start);
 	const auctionState = getAuctionStatus(auctionStart, now);
-	const { submit, buyNow, isPending, error, lastBid } = useBid(vehicle.id);
+	const { submit, buyNow, isPending, error, lastBid, lastAction } = useBid(
+		vehicle.id,
+	);
 	const minBid = getMinimumBid(vehicle);
 	const [amount, setAmount] = useState(() => String(minBid));
 
@@ -138,7 +141,10 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 				: "Ended";
 
 	return (
-		<aside className="rounded-lg border border-border bg-surface p-6">
+		<aside
+			aria-label="Bidding"
+			className="rounded-lg border border-border bg-surface p-6"
+		>
 			<div className="mb-3 flex items-center justify-between gap-3">
 				<AuctionBadge status={auctionState.status} />
 				<span
@@ -183,7 +189,26 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 				</div>
 			) : null}
 
-			{showBidControls ? (
+			{lastAction === "buy_now" && lastBid ? (
+				<div
+					role="status"
+					className="rounded-lg border border-success/30 bg-success/10 p-4 text-center"
+				>
+					<CheckCircle
+						aria-hidden="true"
+						className="mx-auto mb-2 size-10 text-success bid-success-in"
+					/>
+					<p className="text-sm font-medium uppercase tracking-wider text-success">
+						Sold to you
+					</p>
+					<p className="mt-1 font-mono text-2xl font-semibold text-text-primary">
+						{formatCurrency(lastBid.amount)}
+					</p>
+					<p className="mt-2 text-xs text-text-muted">
+						You bought this vehicle. The auction is closed.
+					</p>
+				</div>
+			) : showBidControls ? (
 				<form onSubmit={handleSubmit} className="space-y-3">
 					<div>
 						<label
@@ -225,17 +250,24 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 							{errorMessage(error)}
 						</p>
 					) : null}
-					{lastBid ? (
-						<p className="rounded-md bg-success/10 px-3 py-2 text-sm text-success">
-							Bid placed!
-						</p>
+					{lastBid && lastAction === "bid" ? (
+						<div
+							role="status"
+							className="flex items-center gap-2 rounded-md bg-success/10 px-3 py-2 text-sm text-success"
+						>
+							<CheckCircle
+								aria-hidden="true"
+								className="size-5 shrink-0 bid-success-in"
+							/>
+							<span>Bid placed!</span>
+						</div>
 					) : null}
 
 					<button
 						type="submit"
 						disabled={isPending}
 						aria-label={`Place a bid on ${String(vehicle.year)} ${vehicle.make} ${vehicle.model}`}
-						className="w-full rounded-lg bg-accent py-2.5 font-medium text-page transition-all hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+						className="w-full min-h-11 rounded-lg bg-accent py-2.5 font-medium text-page transition-all hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 					>
 						{isPending
 							? "Placing bid…"
@@ -248,7 +280,7 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 							onClick={handleBuyNow}
 							disabled={isPending}
 							aria-label={`Buy now for ${formatCurrency(vehicle.buy_now_price)}`}
-							className="w-full rounded-lg border border-accent py-2.5 font-medium text-accent transition-all hover:bg-accent/10 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+							className="w-full min-h-11 rounded-lg border border-accent py-2.5 font-medium text-accent transition-all hover:bg-accent/10 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 						>
 							Buy Now — {formatCurrency(vehicle.buy_now_price)}
 						</button>

@@ -39,3 +39,22 @@ export function VehicleCardSkeleton() {
 		</div>
 	);
 }
+
+export function DetailSkeleton() {
+	return (
+		<div role="status" aria-label="Loading vehicle">
+			<Skeleton className="mb-4 h-6 w-32" />
+			<Skeleton className="mb-6 h-10 w-96 max-w-full" />
+			<div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+				<div className="space-y-6 lg:col-span-7">
+					<Skeleton className="aspect-video w-full" />
+					<Skeleton className="h-64 w-full" />
+					<Skeleton className="h-40 w-full" />
+				</div>
+				<div className="lg:col-span-5">
+					<Skeleton className="h-80 w-full" />
+				</div>
+			</div>
+		</div>
+	);
+}

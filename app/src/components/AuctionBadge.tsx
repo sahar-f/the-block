@@ -16,13 +16,18 @@ export function AuctionBadge({ status }: AuctionBadgeProps) {
 
 	return (
 		<span
+			role="img"
+			aria-label={`Auction status: ${variant.label}`}
 			className={cn(
 				"inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-medium font-body",
 				variant.bg,
 			)}
 		>
 			{status === "live" ? (
-				<span className="size-2 rounded-full bg-success animate-pulse" />
+				<span
+					aria-hidden="true"
+					className="size-2 rounded-full bg-success animate-pulse"
+				/>
 			) : null}
 			{variant.label}
 		</span>

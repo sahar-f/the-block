@@ -24,4 +24,9 @@ describe("AuctionBadge", () => {
 		expect(badge?.className).toContain("text-text-muted");
 		expect(container.querySelector(".animate-pulse")).toBeNull();
 	});
+
+	it("exposes an accessible status label via aria-label", () => {
+		render(<AuctionBadge status="live" />);
+		expect(screen.getByLabelText("Auction status: Live")).toBeInTheDocument();
+	});
 });

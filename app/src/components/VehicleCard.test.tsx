@@ -111,8 +111,8 @@ describe("VehicleCard", () => {
 
 	it("renders themed placeholder image with alt text", () => {
 		renderCard({ year: 2024, make: "Toyota", model: "Camry" });
-		const img = screen.getByRole("img");
-		expect(img).toHaveAttribute("alt", "2024 Toyota Camry");
+		const img = screen.getByAltText("2024 Toyota Camry");
+		expect(img.tagName).toBe("IMG");
 		expect(img.getAttribute("src")).toContain(
 			"placehold.co/800x600/141416/71717A",
 		);
@@ -156,11 +156,12 @@ describe("VehicleCard", () => {
 
 	it("shows Car icon fallback when image fails to load", () => {
 		renderCard({ year: 2024, make: "Toyota", model: "Camry" });
-		const img = screen.getByRole("img");
+		const img = screen.getByAltText("2024 Toyota Camry");
 		fireEvent.error(img);
-		// After error, the img element is unmounted and replaced with fallback
-		expect(screen.queryByRole("img")).toBeNull();
-		// Alt text appears as the fallback label
-		expect(screen.getAllByText("2024 Toyota Camry").length).toBeGreaterThan(0);
+		// After error, the <img> tag is unmounted and replaced with a styled fallback
+		expect(screen.queryByAltText("2024 Toyota Camry")).toBeNull();
+		// Vehicle name now appears twice: once in the title h3 and once in the
+		// fallback caption under the Car icon.
+		expect(screen.getAllByText("2024 Toyota Camry").length).toBeGreaterThan(1);
 	});
 });

@@ -4,7 +4,7 @@ import { Link, useParams } from "react-router";
 import { BidPanel } from "../components/BidPanel";
 import { ConditionPanel } from "../components/ConditionPanel";
 import { ImageGallery } from "../components/ImageGallery";
-import { Skeleton } from "../components/Skeleton";
+import { DetailSkeleton } from "../components/Skeleton";
 import { SpecsPanel } from "../components/SpecsPanel";
 import { useNow } from "../hooks/useNow";
 import { useVehicle } from "../hooks/useVehicle";
@@ -20,30 +20,15 @@ export function VehiclePage() {
 			document.title = `The Block | ${String(vehicle.year)} ${vehicle.make} ${vehicle.model}`;
 		}
 		return () => {
-			document.title = "The Block — Vehicle Auctions";
+			document.title = "The Block | Inventory";
 		};
 	}, [vehicle]);
 
 	if (isLoading) {
 		return (
 			<div className="bg-page-atmosphere">
-				<div
-					role="status"
-					aria-label="Loading vehicle"
-					className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-10 xl:px-12"
-				>
-					<Skeleton className="mb-4 h-6 w-32" />
-					<Skeleton className="mb-6 h-10 w-96" />
-					<div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-						<div className="space-y-6 lg:col-span-7">
-							<Skeleton className="aspect-video w-full" />
-							<Skeleton className="h-64 w-full" />
-							<Skeleton className="h-40 w-full" />
-						</div>
-						<div className="lg:col-span-5">
-							<Skeleton className="h-80 w-full" />
-						</div>
-					</div>
+				<div className="mx-auto max-w-screen-2xl px-4 py-8 sm:px-6 lg:px-10 xl:px-12">
+					<DetailSkeleton />
 				</div>
 			</div>
 		);
@@ -59,7 +44,7 @@ export function VehiclePage() {
 				<p className="mt-2 text-sm text-text-secondary">{error}</p>
 				<Link
 					to="/"
-					className="mt-4 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-page transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+					className="mt-4 inline-flex min-h-11 items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-page transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 				>
 					Back to Inventory
 				</Link>

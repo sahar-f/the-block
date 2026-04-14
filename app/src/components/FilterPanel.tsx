@@ -96,7 +96,8 @@ export function FilterPanel({
 			<button
 				type="button"
 				onClick={() => setIsOpen((prev) => !prev)}
-				className="inline-flex items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+				aria-expanded={isOpen}
+				className="inline-flex min-h-11 items-center gap-2 rounded-lg border border-border bg-surface px-3 py-2 text-sm text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 			>
 				<SlidersHorizontal className="size-4" />
 				Filters
@@ -130,10 +131,11 @@ export function FilterPanel({
 													key={option}
 													type="button"
 													onClick={() => onFilterChange(group.key, option)}
+													aria-pressed={isActive}
 													className={cn(
-														"rounded-md border px-2.5 py-1 text-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-page",
+														"min-h-11 rounded-md border px-2.5 py-1 text-xs transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-page",
 														isActive
-															? "border-accent/30 bg-accent/10 text-accent"
+															? "border-accent/30 bg-accent/10 text-accent hover:bg-accent/15"
 															: "border-border text-text-secondary hover:border-border-hover hover:text-text-primary",
 													)}
 												>
@@ -165,7 +167,7 @@ export function FilterPanel({
 										)
 									}
 									min={0}
-									className="w-full rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
+									className="w-full min-h-11 rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
 								/>
 								<span className="text-text-muted">–</span>
 								<input
@@ -180,7 +182,7 @@ export function FilterPanel({
 										)
 									}
 									min={0}
-									className="w-full rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
+									className="w-full min-h-11 rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
 								/>
 							</div>
 						</div>
@@ -204,7 +206,7 @@ export function FilterPanel({
 									min={0}
 									max={5}
 									step={0.1}
-									className="w-full rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
+									className="w-full min-h-11 rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
 								/>
 								<span className="text-text-muted">–</span>
 								<input
@@ -221,7 +223,7 @@ export function FilterPanel({
 									min={0}
 									max={5}
 									step={0.1}
-									className="w-full rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
+									className="w-full min-h-11 rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
 								/>
 							</div>
 						</div>
@@ -231,7 +233,7 @@ export function FilterPanel({
 						<button
 							type="button"
 							onClick={onClear}
-							className="mt-4 inline-flex items-center gap-1.5 text-sm text-text-muted hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-page"
+							className="mt-4 inline-flex min-h-11 items-center gap-1.5 rounded text-sm text-text-muted hover:text-text-primary transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-1 focus-visible:ring-offset-page"
 						>
 							<X className="size-3.5" />
 							Clear all filters

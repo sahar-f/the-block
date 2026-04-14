@@ -7,16 +7,20 @@ import {
 import * as dataStore from "../lib/dataStore";
 import type { Bid, BidError } from "../types";
 
+export type BidAction = "bid" | "buy_now";
+
 export function useBid(vehicleId: string): {
 	submit: (amount: number) => Promise<void>;
 	buyNow: () => Promise<void>;
 	isPending: boolean;
 	error: BidError | null;
 	lastBid: Bid | null;
+	lastAction: BidAction | null;
 } {
 	const [isPending, setIsPending] = useState(false);
 	const [error, setError] = useState<BidError | null>(null);
 	const [lastBid, setLastBid] = useState<Bid | null>(null);
+	const [lastAction, setLastAction] = useState<BidAction | null>(null);
 
 	const submit = useCallback(
 		async (amount: number) => {
@@ -62,6 +66,7 @@ export function useBid(vehicleId: string): {
 				const result = await dataStore.submitBid(vehicleId, amount);
 				if (result.success) {
 					setLastBid(result.bid);
+					setLastAction("bid");
 					setError(null);
 				} else {
 					setError(result.error);
@@ -101,6 +106,7 @@ export function useBid(vehicleId: string): {
 			);
 			if (result.success) {
 				setLastBid(result.bid);
+				setLastAction("buy_now");
 				setError(null);
 			} else {
 				setError(result.error);
@@ -110,5 +116,5 @@ export function useBid(vehicleId: string): {
 		}
 	}, [vehicleId]);
 
-	return { submit, buyNow, isPending, error, lastBid };
+	return { submit, buyNow, isPending, error, lastBid, lastAction };
 }

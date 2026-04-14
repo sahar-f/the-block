@@ -14,6 +14,8 @@ export function ConditionBadge({ grade }: ConditionBadgeProps) {
 
 	return (
 		<span
+			role="img"
+			aria-label={`Condition grade: ${grade.toFixed(1)} of 5`}
 			className={cn(
 				"inline-flex items-center rounded px-1.5 py-0.5 text-xs font-mono font-medium",
 				color,

@@ -38,14 +38,14 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
 				placeholder="Search by make, model, year, VIN, or lot..."
 				value={inputValue}
 				onChange={(e) => setInputValue(e.target.value)}
-				className="w-full rounded-lg border border-border bg-surface py-2.5 pl-10 pr-10 font-body text-sm text-text-primary placeholder:text-text-muted transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-page focus:shadow-[0_0_0_4px_rgba(245,158,11,0.1)]"
+				className="w-full min-h-11 rounded-lg border border-border bg-surface py-2.5 pl-10 pr-11 font-body text-sm text-text-primary placeholder:text-text-muted transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-page focus:shadow-[0_0_0_4px_rgba(245,158,11,0.1)]"
 			/>
 			{inputValue.length > 0 ? (
 				<button
 					type="button"
 					onClick={handleClear}
 					aria-label="Clear search"
-					className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-text-primary transition-colors"
+					className="absolute right-1 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded text-text-muted transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
 				>
 					<X className="size-4" />
 				</button>

@@ -28,4 +28,11 @@ describe("ConditionBadge", () => {
 		render(<ConditionBadge grade={4} />);
 		expect(screen.getByText("4.0")).toBeInTheDocument();
 	});
+
+	it("exposes an accessible grade label via aria-label", () => {
+		render(<ConditionBadge grade={4.2} />);
+		expect(
+			screen.getByLabelText("Condition grade: 4.2 of 5"),
+		).toBeInTheDocument();
+	});
 });

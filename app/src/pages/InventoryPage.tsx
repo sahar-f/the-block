@@ -1,4 +1,5 @@
 import { AlertCircle, SearchX } from "lucide-react";
+import { useEffect } from "react";
 import { EndingSoonStrip } from "../components/EndingSoonStrip";
 import { FilterPanel } from "../components/FilterPanel";
 import { SearchBar } from "../components/SearchBar";
@@ -21,6 +22,10 @@ export function InventoryPage() {
 	const now = useNow();
 	const { data, allVehicles, isLoading, error } = useVehicles(filters, now);
 	const filtersActive = hasActiveFilters(filters);
+
+	useEffect(() => {
+		document.title = "The Block | Inventory";
+	}, []);
 
 	if (error) {
 		return (
@@ -102,7 +107,7 @@ export function InventoryPage() {
 							<button
 								type="button"
 								onClick={clearFilters}
-								className="mt-4 rounded-lg bg-accent px-4 py-2 text-sm font-medium text-page transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+								className="mt-4 inline-flex min-h-11 items-center justify-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-page transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 							>
 								Clear all filters
 							</button>
