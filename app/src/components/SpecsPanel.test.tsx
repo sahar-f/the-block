@@ -59,6 +59,11 @@ describe("SpecsPanel", () => {
 		expect(screen.getByText("VIN123ABCDEF4567")).toBeInTheDocument();
 	});
 
+	it("renders title_status with title-case label", () => {
+		render(<SpecsPanel vehicle={makeVehicle({ title_status: "rebuilt" })} />);
+		expect(screen.getByText("Rebuilt")).toBeInTheDocument();
+	});
+
 	it("renders VIN in monospace font", () => {
 		render(<SpecsPanel vehicle={makeVehicle()} />);
 		const vinEl = screen.getByText("VIN123ABCDEF4567");

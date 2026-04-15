@@ -18,6 +18,11 @@ test.describe("Search and Browse", () => {
 		const initialCount = await gridCards(page).count();
 		expect(initialCount).toBeGreaterThan(1);
 
+		// Inventory landmarks: stats bar (total value) and Ending Soon strip both
+		// render alongside the grid on initial load.
+		await expect(page.getByText(/total\s+value/i)).toBeVisible();
+		await expect(page.getByText(/ending\s+soon/i).first()).toBeVisible();
+
 		// At least one visible card shows a selling_dealership text. We don't know
 		// the exact dealer names, so verify the results-count line ("X vehicles
 		// available" or "Showing X of Y vehicles") which proves the grid is wired
@@ -61,6 +66,16 @@ test.describe("Search and Browse", () => {
 		// Specs section exists
 		await expect(
 			page.getByRole("heading", { level: 2, name: /specifications/i }),
+		).toBeVisible();
+
+		// Image gallery renders main image area + thumbnail buttons (one per image)
+		const gallery = page.locator('section[aria-label="Image gallery"]');
+		await expect(gallery).toBeVisible();
+		expect(await gallery.locator("button").count()).toBeGreaterThan(0);
+
+		// Condition badge present (every vehicle has a condition_grade)
+		await expect(
+			page.locator('[aria-label^="Condition grade"]').first(),
 		).toBeVisible();
 
 		// Bid section exists — accept any one of: bid input, Place Bid button, or

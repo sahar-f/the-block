@@ -109,14 +109,28 @@ describe("VehicleCard", () => {
 		expect(link).toHaveAttribute("href", "/vehicles/abc-123");
 	});
 
-	it("renders themed placeholder image with alt text", () => {
-		renderCard({ year: 2024, make: "Toyota", model: "Camry" });
+	it("renders the first image from the vehicle's images array", () => {
+		renderCard({
+			year: 2024,
+			make: "Toyota",
+			model: "Camry",
+			images: [
+				"https://example.com/photo-1.jpg",
+				"https://example.com/photo-2.jpg",
+			],
+		});
 		const img = screen.getByAltText("2024 Toyota Camry");
 		expect(img.tagName).toBe("IMG");
+		expect(img.getAttribute("src")).toBe("https://example.com/photo-1.jpg");
+		expect(img).toHaveAttribute("loading", "lazy");
+	});
+
+	it("falls back to the themed placeholder when images is empty", () => {
+		renderCard({ year: 2024, make: "Toyota", model: "Camry", images: [] });
+		const img = screen.getByAltText("2024 Toyota Camry");
 		expect(img.getAttribute("src")).toContain(
 			"placehold.co/800x600/141416/71717A",
 		);
-		expect(img).toHaveAttribute("loading", "lazy");
 	});
 
 	it("renders auction badge", () => {

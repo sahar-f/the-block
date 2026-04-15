@@ -21,7 +21,6 @@ export class ErrorBoundary extends Component<
 	}
 
 	componentDidCatch(error: Error, info: ErrorInfo) {
-		// Dev-only surfacing for debugging; never shown to users per CLAUDE.md.
 		if (import.meta.env.DEV) {
 			console.error("ErrorBoundary caught:", error, info.componentStack);
 		}

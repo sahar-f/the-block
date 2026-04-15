@@ -4,10 +4,15 @@ import {
 	getMinimumBid,
 	parseAuctionStart,
 } from "../lib/auction";
+import { MAX_BID } from "../lib/constants";
 import * as dataStore from "../lib/dataStore";
 import type { Bid, BidError } from "../types";
 
 export type BidAction = "bid" | "buy_now";
+
+function isValidBidAmount(n: number): boolean {
+	return Number.isInteger(n) && n > 0 && n <= MAX_BID;
+}
 
 export function useBid(vehicleId: string): {
 	submit: (amount: number) => Promise<void>;
@@ -26,13 +31,9 @@ export function useBid(vehicleId: string): {
 		async (amount: number) => {
 			setError(null);
 
-			// Read fresh vehicle data at submission time — not from a stale closure
 			const vehicle = dataStore.getVehicle(vehicleId);
 			if (!vehicle) {
-				setError({
-					type: "network",
-					message: "Vehicle not found.",
-				});
+				setError({ type: "network" });
 				return;
 			}
 
@@ -42,21 +43,14 @@ export function useBid(vehicleId: string): {
 			);
 
 			if (status !== "live") {
-				setError({
-					type: "auction_ended",
-					message: "This auction has ended — your bid couldn't be placed.",
-				});
+				setError({ type: "auction_ended" });
 				return;
 			}
 
 			const minimum = getMinimumBid(vehicle);
 
-			if (amount < minimum) {
-				setError({
-					type: "bid_too_low",
-					minimum,
-					message: `Bid must be at least $${minimum.toLocaleString()}.`,
-				});
+			if (!isValidBidAmount(amount) || amount < minimum) {
+				setError({ type: "bid_too_low", minimum });
 				return;
 			}
 
@@ -90,20 +84,24 @@ export function useBid(vehicleId: string): {
 		);
 
 		if (status !== "live") {
-			setError({
-				type: "auction_ended",
-				message: "This auction has ended — Buy Now is no longer available.",
-			});
+			setError({ type: "auction_ended" });
+			return;
+		}
+
+		// If a regular bid already exceeded buy_now_price, Math.max ensures the
+		// price never moves backwards.
+		const minimum = getMinimumBid(vehicle);
+		const amount = Math.max(vehicle.buy_now_price, minimum);
+
+		if (!isValidBidAmount(amount)) {
+			setError({ type: "network" });
 			return;
 		}
 
 		setIsPending(true);
 
 		try {
-			const result = await dataStore.submitBid(
-				vehicleId,
-				vehicle.buy_now_price,
-			);
+			const result = await dataStore.submitBid(vehicleId, amount);
 			if (result.success) {
 				setLastBid(result.bid);
 				setLastAction("buy_now");

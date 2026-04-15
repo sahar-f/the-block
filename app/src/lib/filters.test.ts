@@ -4,6 +4,7 @@ import {
 	applyFilters,
 	hasActiveFilters,
 	parseFilters,
+	parseRangeNumber,
 	serializeFilters,
 } from "./filters";
 
@@ -58,10 +59,43 @@ const defaultFilters: FilterState = {
 	sort: "ending_soon",
 };
 
+describe("parseRangeNumber", () => {
+	it("returns null for null and empty string", () => {
+		expect(parseRangeNumber(null)).toBeNull();
+		expect(parseRangeNumber("")).toBeNull();
+	});
+
+	it("preserves the value 0 (does not treat as falsy)", () => {
+		expect(parseRangeNumber("0")).toBe(0);
+	});
+
+	it("rejects negative, NaN, and out-of-range values", () => {
+		expect(parseRangeNumber("-5")).toBeNull();
+		expect(parseRangeNumber("abc")).toBeNull();
+		expect(parseRangeNumber("6", 5)).toBeNull();
+	});
+
+	it("accepts in-range numerics", () => {
+		expect(parseRangeNumber("3.5", 5)).toBe(3.5);
+		expect(parseRangeNumber("100000")).toBe(100000);
+	});
+});
+
 describe("parseFilters", () => {
 	it("returns defaults for empty params", () => {
 		const result = parseFilters(new URLSearchParams());
 		expect(result).toEqual(defaultFilters);
+	});
+
+	it("parses priceMin=0 as 0, not null", () => {
+		const result = parseFilters(new URLSearchParams("priceMin=0"));
+		expect(result.priceMin).toBe(0);
+	});
+
+	it("caps each comma-separated value at MAX_FILTER_VALUE_LENGTH", () => {
+		const huge = "a".repeat(500);
+		const result = parseFilters(new URLSearchParams(`bodyStyle=${huge}`));
+		expect(result.bodyStyle[0].length).toBeLessThanOrEqual(100);
 	});
 
 	it("parses query", () => {

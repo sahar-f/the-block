@@ -15,9 +15,8 @@ function RootLayout() {
 	return (
 		<>
 			<ScrollRestoration />
-			{/* Keying ErrorBoundary on pathname resets hasError on navigation,
-			    so a user hitting an error on one route isn't stuck on the
-			    fallback after navigating to another. */}
+			{/* Key on pathname so an error on one route doesn't strand the user
+			    on the fallback after they navigate away. */}
 			<ErrorBoundary key={location.pathname}>
 				<Outlet />
 			</ErrorBoundary>

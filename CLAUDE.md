@@ -2,7 +2,7 @@
 
 ## Project Overview
 Buyer-side vehicle auction web app for the OPENLANE coding challenge as outlined in README.md.
-200 synthetic vehicles from `data/vehicles.json`. Buyers browse inventory,
+200 synthetic vehicles from `app/data/vehicles.json`. Buyers browse inventory,
 inspect vehicle details, and place bids.
 
 This is a prototype. Optimize for **clarity over surface area**. Every line of

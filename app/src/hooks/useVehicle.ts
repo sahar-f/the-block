@@ -7,15 +7,13 @@ export function useVehicle(id: string): {
 	isLoading: boolean;
 	error: string | null;
 } {
-	// getIsInitialized/getInitError are read outside useSyncExternalStore, but
-	// this is safe: ensureInit always calls notifySubscribers() when these change,
-	// and the vehicles array reference also changes at the same time ([] → loaded).
-	// useSyncExternalStore detects the vehicles reference change and triggers re-render.
 	const allVehicles = useSyncExternalStore(
 		dataStore.subscribe,
 		dataStore.getVehicles,
 	);
 
+	// Safe to read outside the store: ensureInit() always notifies subscribers
+	// when these flip, alongside a vehicles array reference change.
 	const isLoading = !dataStore.getIsInitialized();
 	const error = dataStore.getInitError();
 	const data = useMemo(

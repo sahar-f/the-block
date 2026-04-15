@@ -48,6 +48,51 @@ describe("formatDate", () => {
 	});
 });
 
+describe("isSafeImageUrl", () => {
+	it("accepts http(s) URLs", async () => {
+		const { isSafeImageUrl } = await import("./format");
+		expect(isSafeImageUrl("https://example.com/a.jpg")).toBe(true);
+		expect(isSafeImageUrl("http://example.com/a.jpg")).toBe(true);
+	});
+
+	it("rejects non-http(s) protocols and malformed input", async () => {
+		const { isSafeImageUrl } = await import("./format");
+		expect(isSafeImageUrl("javascript:alert(1)")).toBe(false);
+		expect(isSafeImageUrl("data:image/svg+xml,<svg/>")).toBe(false);
+		expect(isSafeImageUrl("file:///etc/passwd")).toBe(false);
+		expect(isSafeImageUrl("not a url")).toBe(false);
+		expect(isSafeImageUrl("")).toBe(false);
+		expect(isSafeImageUrl(undefined)).toBe(false);
+	});
+});
+
+describe("getVehicleImageUrl", () => {
+	it("returns the indexed image when it is a safe URL", async () => {
+		const { getVehicleImageUrl } = await import("./format");
+		const v = {
+			year: 2024,
+			make: "X",
+			model: "Y",
+			images: ["https://a.com/1.jpg", "https://a.com/2.jpg"],
+		} as Vehicle;
+		expect(getVehicleImageUrl(v, 0)).toBe("https://a.com/1.jpg");
+		expect(getVehicleImageUrl(v, 1)).toBe("https://a.com/2.jpg");
+	});
+
+	it("falls back to placeholder for missing or unsafe URLs", async () => {
+		const { getVehicleImageUrl } = await import("./format");
+		const v = {
+			year: 2024,
+			make: "X",
+			model: "Y",
+			images: ["javascript:alert(1)", ""],
+		} as Vehicle;
+		expect(getVehicleImageUrl(v, 0)).toContain("placehold.co");
+		expect(getVehicleImageUrl(v, 1)).toContain("placehold.co");
+		expect(getVehicleImageUrl(v, 99)).toContain("placehold.co");
+	});
+});
+
 describe("getPlaceholderUrl", () => {
 	it("generates themed URL with vehicle info", () => {
 		const vehicle = { year: 2023, make: "Ford", model: "Bronco" } as Vehicle;

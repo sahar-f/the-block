@@ -6,7 +6,7 @@ import {
 	formatCurrency,
 	formatTimeRemaining,
 	getDisplayPrice,
-	getPlaceholderUrl,
+	getVehicleImageUrl,
 } from "../lib/format";
 import type { Vehicle } from "../types";
 
@@ -49,7 +49,7 @@ export function EndingSoonStrip({ vehicles, now }: EndingSoonStripProps) {
 						className="flex min-w-[200px] snap-start items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:border-border-hover focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page focus-visible:outline-none"
 					>
 						<img
-							src={getPlaceholderUrl(vehicle)}
+							src={getVehicleImageUrl(vehicle)}
 							alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
 							loading="lazy"
 							className="size-14 shrink-0 rounded-md object-cover"

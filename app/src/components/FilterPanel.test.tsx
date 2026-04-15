@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import type { FilterState } from "../types";
@@ -95,5 +95,44 @@ describe("FilterPanel", () => {
 		await userEvent.click(screen.getByText("Filters"));
 		expect(screen.getByLabelText("Minimum condition")).toBeInTheDocument();
 		expect(screen.getByLabelText("Maximum condition")).toBeInTheDocument();
+	});
+
+	it("price input emits 0 (not null) when user types '0'", async () => {
+		const { onRangeChange } = renderPanel();
+		await userEvent.click(screen.getByText("Filters"));
+		fireEvent.change(screen.getByLabelText("Minimum price"), {
+			target: { value: "0" },
+		});
+		expect(onRangeChange).toHaveBeenLastCalledWith("priceMin", 0);
+	});
+
+	it("price input emits null when cleared from a populated value", async () => {
+		const { onRangeChange } = renderPanel({ priceMin: 100 });
+		await userEvent.click(screen.getByText("Filters"));
+		const input = screen.getByLabelText("Minimum price");
+
+		fireEvent.change(input, { target: { value: "" } });
+		expect(onRangeChange).toHaveBeenLastCalledWith("priceMin", null);
+	});
+
+	it("price input emits null for negative input", async () => {
+		const { onRangeChange } = renderPanel();
+		await userEvent.click(screen.getByText("Filters"));
+		const input = screen.getByLabelText("Minimum price");
+
+		fireEvent.change(input, { target: { value: "-5" } });
+		expect(onRangeChange).toHaveBeenLastCalledWith("priceMin", null);
+	});
+
+	it("condition input clamps to the 0..5 range", async () => {
+		const { onRangeChange } = renderPanel();
+		await userEvent.click(screen.getByText("Filters"));
+		const input = screen.getByLabelText("Maximum condition");
+
+		fireEvent.change(input, { target: { value: "3.5" } });
+		expect(onRangeChange).toHaveBeenLastCalledWith("conditionMax", 3.5);
+
+		fireEvent.change(input, { target: { value: "9" } });
+		expect(onRangeChange).toHaveBeenLastCalledWith("conditionMax", null);
 	});
 });

@@ -6,7 +6,7 @@ import {
 	formatCurrency,
 	formatTimeRemaining,
 	getDisplayPrice,
-	getPlaceholderUrl,
+	getVehicleImageUrl,
 } from "../lib/format";
 import type { Vehicle } from "../types";
 import { AuctionBadge } from "./AuctionBadge";
@@ -30,7 +30,7 @@ export function VehicleCard({ vehicle, index, now }: VehicleCardProps) {
 
 	const price = getDisplayPrice(vehicle);
 	const hasCurrentBid = vehicle.current_bid !== null;
-	const imgSrc = getPlaceholderUrl(vehicle);
+	const imgSrc = getVehicleImageUrl(vehicle);
 	const altText = `${vehicle.year} ${vehicle.make} ${vehicle.model}`;
 
 	return (

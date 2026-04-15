@@ -4,6 +4,8 @@ import { getDisplayPrice } from "./format";
 
 const DEFAULT_SORT: SortOption = "ending_soon";
 const MAX_QUERY_LENGTH = 200;
+const MAX_FILTER_VALUE_LENGTH = 100;
+const MAX_FILTER_VALUES = 50;
 
 const VALID_SORTS = new Set<SortOption>([
 	"price_asc",
@@ -24,15 +26,16 @@ function parseCommaSeparated(value: string | null): string[] {
 	if (!value) return [];
 	return value
 		.split(",")
-		.map((s) => s.trim())
-		.filter(Boolean);
+		.map((s) => s.trim().slice(0, MAX_FILTER_VALUE_LENGTH))
+		.filter(Boolean)
+		.slice(0, MAX_FILTER_VALUES);
 }
 
-function parseNumber(
+export function parseRangeNumber(
 	value: string | null,
 	max: number = Number.POSITIVE_INFINITY,
 ): number | null {
-	if (!value) return null;
+	if (value === null || value === "") return null;
 	const n = Number(value);
 	return Number.isFinite(n) && n >= 0 && n <= max ? n : null;
 }
@@ -56,10 +59,10 @@ export function parseFilters(searchParams: URLSearchParams): FilterState {
 		auctionStatus: auctionStatusRaw.filter((s) =>
 			VALID_AUCTION_STATUSES.has(s as AuctionStatus),
 		) as AuctionStatus[],
-		priceMin: parseNumber(searchParams.get("priceMin")),
-		priceMax: parseNumber(searchParams.get("priceMax")),
-		conditionMin: parseNumber(searchParams.get("conditionMin"), 5),
-		conditionMax: parseNumber(searchParams.get("conditionMax"), 5),
+		priceMin: parseRangeNumber(searchParams.get("priceMin")),
+		priceMax: parseRangeNumber(searchParams.get("priceMax")),
+		conditionMin: parseRangeNumber(searchParams.get("conditionMin"), 5),
+		conditionMax: parseRangeNumber(searchParams.get("conditionMax"), 5),
 		sort: sort && VALID_SORTS.has(sort) ? sort : DEFAULT_SORT,
 	};
 }
@@ -210,7 +213,6 @@ function sortVehicles(
 					parseAuctionStart(b.auction_start),
 					now,
 				);
-				// Live auctions first (by time remaining), then upcoming, then ended
 				const aOrder =
 					aState.status === "live" ? 0 : aState.status === "upcoming" ? 1 : 2;
 				const bOrder =

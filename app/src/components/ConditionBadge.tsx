@@ -21,7 +21,7 @@ export function ConditionBadge({ grade }: ConditionBadgeProps) {
 				color,
 			)}
 		>
-			{grade.toFixed(1)}
+			<span aria-hidden="true">{grade.toFixed(1)}</span>
 		</span>
 	);
 }

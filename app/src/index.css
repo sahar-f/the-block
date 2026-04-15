@@ -1,31 +1,25 @@
 @import "tailwindcss";
 
 @theme {
-	/* Typography */
 	--font-heading: "Outfit", sans-serif;
 	--font-body: "DM Sans", sans-serif;
 	--font-mono: "JetBrains Mono", monospace;
 
-	/* Colors — Page & Surfaces */
 	--color-page: #09090b;
 	--color-surface: #141416;
 	--color-surface-hover: #1a1a1e;
 
-	/* Colors — Text */
 	--color-text-primary: #f4f4f5;
 	--color-text-secondary: #a1a1aa;
-	--color-text-muted: #8a8a96;
+	--color-text-muted: #71717a;
 
-	/* Colors — Accent */
 	--color-accent: #f59e0b;
 	--color-accent-hover: #d97706;
 
-	/* Colors — Semantic */
 	--color-success: #22c55e;
 	--color-error: #ef4444;
 	--color-warning: #eab308;
 
-	/* Colors — Borders */
 	--color-border: #27272a;
 	--color-border-hover: #3f3f46;
 }

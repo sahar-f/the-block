@@ -36,6 +36,23 @@ export function getPlaceholderUrl(vehicle: Vehicle): string {
 	return `https://placehold.co/800x600/141416/71717A?text=${text}`;
 }
 
+// Block non-http(s) URLs so a stray data:/javascript: payload in the dataset
+// can't reach <img src>.
+export function isSafeImageUrl(url: string | undefined): boolean {
+	if (!url) return false;
+	try {
+		const u = new URL(url);
+		return u.protocol === "http:" || u.protocol === "https:";
+	} catch {
+		return false;
+	}
+}
+
+export function getVehicleImageUrl(vehicle: Vehicle, index = 0): string {
+	const candidate = vehicle.images[index];
+	return isSafeImageUrl(candidate) ? candidate : getPlaceholderUrl(vehicle);
+}
+
 export function formatTimeRemaining(ms: number): string {
 	if (ms <= 0) return "Ended";
 

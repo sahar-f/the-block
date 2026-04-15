@@ -2,7 +2,7 @@
 
 ## Context
 
-Buyer-side vehicle auction prototype for the OPENLANE coding challenge. 200 synthetic vehicles from `data/vehicles.json`. Buyers browse inventory, inspect details, and place bids. Must work with `npm install && npm run dev` — no external services required. Supabase is optional for real-time and persistence.
+Buyer-side vehicle auction prototype for the OPENLANE coding challenge. 200 synthetic vehicles from `app/data/vehicles.json`. Buyers browse inventory, inspect details, and place bids. Must work with `npm install && npm run dev` — no external services required. Supabase is optional for real-time and persistence.
 
 This spec defines the architecture before any code is written. Every decision was brainstormed against edge cases including auction expiry mid-session, real-time bid conflicts, browser sleep/wake, and timestamp boundary precision.
 

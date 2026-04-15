@@ -46,9 +46,9 @@ export type Bid = {
 };
 
 export type BidError =
-	| { type: "auction_ended"; message: string }
-	| { type: "bid_too_low"; minimum: number; message: string }
-	| { type: "network"; message: string };
+	| { type: "auction_ended" }
+	| { type: "bid_too_low"; minimum: number }
+	| { type: "network" };
 
 export type BidResult =
 	| { success: true; bid: Bid }

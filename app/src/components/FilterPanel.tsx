@@ -1,6 +1,7 @@
 import { SlidersHorizontal, X } from "lucide-react";
 import { useState } from "react";
 import { cn } from "../lib/cn";
+import { parseRangeNumber } from "../lib/filters";
 import type { FilterState } from "../types";
 
 type FilterKey = keyof Pick<
@@ -161,10 +162,7 @@ export function FilterPanel({
 									aria-label="Minimum price"
 									value={filters.priceMin ?? ""}
 									onChange={(e) =>
-										onRangeChange(
-											"priceMin",
-											e.target.value ? Number(e.target.value) : null,
-										)
+										onRangeChange("priceMin", parseRangeNumber(e.target.value))
 									}
 									min={0}
 									className="w-full min-h-11 rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
@@ -176,10 +174,7 @@ export function FilterPanel({
 									aria-label="Maximum price"
 									value={filters.priceMax ?? ""}
 									onChange={(e) =>
-										onRangeChange(
-											"priceMax",
-											e.target.value ? Number(e.target.value) : null,
-										)
+										onRangeChange("priceMax", parseRangeNumber(e.target.value))
 									}
 									min={0}
 									className="w-full min-h-11 rounded-md border border-border bg-surface px-2 py-1.5 font-mono text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-1 focus:ring-offset-page"
@@ -200,7 +195,7 @@ export function FilterPanel({
 									onChange={(e) =>
 										onRangeChange(
 											"conditionMin",
-											e.target.value ? Number(e.target.value) : null,
+											parseRangeNumber(e.target.value, 5),
 										)
 									}
 									min={0}
@@ -217,7 +212,7 @@ export function FilterPanel({
 									onChange={(e) =>
 										onRangeChange(
 											"conditionMax",
-											e.target.value ? Number(e.target.value) : null,
+											parseRangeNumber(e.target.value, 5),
 										)
 									}
 									min={0}

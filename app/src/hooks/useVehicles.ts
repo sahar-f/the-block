@@ -14,7 +14,6 @@ export function useVehicles(
 	filters: FilterState,
 	now: number,
 ): UseVehiclesResult {
-	// Safe to read outside useSyncExternalStore — see useVehicle.ts comment
 	const allVehicles = useSyncExternalStore(
 		dataStore.subscribe,
 		dataStore.getVehicles,

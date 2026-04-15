@@ -29,7 +29,7 @@ export function AuctionBadge({ status }: AuctionBadgeProps) {
 					className="size-2 rounded-full bg-success animate-pulse"
 				/>
 			) : null}
-			{variant.label}
+			<span aria-hidden="true">{variant.label}</span>
 		</span>
 	);
 }

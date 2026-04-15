@@ -68,6 +68,15 @@ test.describe("Place a Bid", () => {
 		// No success message should appear after the blocked submit.
 		await expect(page.getByText(/^bid placed!?$/i)).toHaveCount(0);
 
+		// 1b) Decimal: type="number" accepts "minBid.5" but the strict-integer
+		//     parse in BidPanel rejects it. Visual signal must appear AND submit
+		//     must not fire (no success pill).
+		await bidInput.fill(`${String(minBid)}.5`);
+		await expect(bidInput).toHaveAttribute("aria-invalid", "true");
+		await expect(page.getByText(/enter a whole dollar amount/i)).toBeVisible();
+		await placeBid.click();
+		await expect(page.getByText(/^bid placed!?$/i)).toHaveCount(0);
+
 		// 2) Valid bid: minBid + 200 → submit. Accept either:
 		//    (a) success pill "Bid placed!" appears, OR
 		//    (b) network-mode error pill ("Something went wrong") appears

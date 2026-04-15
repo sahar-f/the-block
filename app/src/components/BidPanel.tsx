@@ -50,13 +50,14 @@ const reserveStyles: Record<ReserveTone, string> = {
 };
 
 function errorMessage(error: BidError): string {
-	if (error.type === "bid_too_low") {
-		return `Bid must be at least ${formatCurrency(error.minimum)}.`;
+	switch (error.type) {
+		case "bid_too_low":
+			return `Bid must be at least ${formatCurrency(error.minimum)}.`;
+		case "auction_ended":
+			return "This auction has ended.";
+		default:
+			return "Something went wrong. Please try again.";
 	}
-	if (error.type === "auction_ended") {
-		return "This auction has ended.";
-	}
-	return "Something went wrong. Please try again.";
 }
 
 export function BidPanel({ vehicle, now }: BidPanelProps) {
@@ -68,9 +69,8 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 	const minBid = getMinimumBid(vehicle);
 	const [amount, setAmount] = useState(() => String(minBid));
 
-	// Track status transition from live → ended with a time jump > AWAY_THRESHOLD_MS,
-	// which indicates the tab was backgrounded (e.g., browser sleep).
-	// Seed with null so we only register "wasLive" from an observed live state.
+	// Detect "auction ended while tab was backgrounded": a live → ended transition
+	// with a time jump > AWAY_THRESHOLD_MS implies the user was away (browser sleep).
 	const prevStatus = useRef<AuctionStatus | null>(null);
 	const prevTimeRemaining = useRef<number>(auctionState.timeRemaining);
 	const [endedWhileAway, setEndedWhileAway] = useState(false);
@@ -86,8 +86,6 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 		prevTimeRemaining.current = auctionState.timeRemaining;
 	}, [auctionState.status, auctionState.timeRemaining]);
 
-	// Real-time signal: flash the price briefly when current_bid changes
-	// (e.g., another bidder places a bid while this component is mounted).
 	const prevCurrentBid = useRef<number | null>(vehicle.current_bid);
 	const [priceFlash, setPriceFlash] = useState(false);
 
@@ -109,15 +107,19 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 	const displayPrice = getDisplayPrice(vehicle);
 	const hasCurrentBid = vehicle.current_bid !== null;
 
-	// Parse typed bid amount once; used for both below-min indicator and submit preview.
-	const parsedAmount = Number.parseInt(amount, 10);
-	const amountBelowMin = Number.isFinite(parsedAmount) && parsedAmount < minBid;
-	const safeAmount = Number.isFinite(parsedAmount) ? parsedAmount : minBid;
+	// Strict integer parse — rejects "150.5", "1e3", "abc", "" → NaN.
+	const parsedAmount = /^\d+$/.test(amount.trim())
+		? Number(amount)
+		: Number.NaN;
+	const isValidNumber = Number.isInteger(parsedAmount);
+	const amountBelowMin = isValidNumber && parsedAmount < minBid;
+	const safeAmount = isValidNumber ? parsedAmount : minBid;
+	const showInvalid =
+		amount.trim() !== "" && (!isValidNumber || amountBelowMin);
 
 	function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
 		event.preventDefault();
-		// Defense-in-depth: useBid also validates, but block obviously-invalid amounts locally.
-		if (!Number.isInteger(parsedAmount) || parsedAmount < minBid) return;
+		if (!isValidNumber || parsedAmount < minBid) return;
 		void submit(parsedAmount);
 	}
 
@@ -132,6 +134,12 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 
 	const showBidControls = auctionState.status === "live";
 	const showBuyNow = showBidControls && vehicle.buy_now_price !== null;
+	// Buy Now never moves the price backwards: if a bid has already exceeded
+	// buy_now_price, the user pays current_bid + increment instead.
+	const buyNowAmount =
+		vehicle.buy_now_price !== null
+			? Math.max(vehicle.buy_now_price, minBid)
+			: 0;
 
 	const countdownLabel =
 		auctionState.status === "upcoming"
@@ -224,24 +232,26 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 							min={minBid}
 							step={MIN_BID_INCREMENT}
 							value={amount}
-							aria-invalid={amountBelowMin ? "true" : undefined}
+							aria-invalid={showInvalid ? "true" : undefined}
 							aria-describedby="bid-amount-hint"
 							onChange={(e) => {
 								setAmount(e.target.value);
 							}}
 							className={cn(
 								"w-full rounded-lg border bg-page px-3 py-2.5 font-mono text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500",
-								amountBelowMin ? "border-error" : "border-border",
+								showInvalid ? "border-error" : "border-border",
 							)}
 						/>
 						<p
 							id="bid-amount-hint"
 							className={cn(
 								"mt-1 text-xs",
-								amountBelowMin ? "text-error" : "text-text-muted",
+								showInvalid ? "text-error" : "text-text-muted",
 							)}
 						>
-							Minimum: {formatCurrency(minBid)}
+							{showInvalid && !isValidNumber
+								? "Enter a whole dollar amount."
+								: `Minimum: ${formatCurrency(minBid)}`}
 						</p>
 					</div>
 
@@ -274,15 +284,15 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 							: `Place Bid — ${formatCurrency(safeAmount)}`}
 					</button>
 
-					{showBuyNow && vehicle.buy_now_price !== null ? (
+					{showBuyNow ? (
 						<button
 							type="button"
 							onClick={handleBuyNow}
 							disabled={isPending}
-							aria-label={`Buy now for ${formatCurrency(vehicle.buy_now_price)}`}
+							aria-label={`Buy now for ${formatCurrency(buyNowAmount)}`}
 							className="w-full min-h-11 rounded-lg border border-accent py-2.5 font-medium text-accent transition-all hover:bg-accent/10 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 						>
-							Buy Now — {formatCurrency(vehicle.buy_now_price)}
+							Buy Now — {formatCurrency(buyNowAmount)}
 						</button>
 					) : null}
 				</form>

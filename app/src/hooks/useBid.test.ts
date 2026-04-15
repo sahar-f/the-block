@@ -86,7 +86,6 @@ describe("useBid", () => {
 		expect(result.current.error).toEqual({
 			type: "bid_too_low",
 			minimum: 10100,
-			message: expect.stringContaining("10,100"),
 		});
 	});
 
@@ -116,7 +115,6 @@ describe("useBid", () => {
 		expect(result.current.error).toEqual({
 			type: "bid_too_low",
 			minimum: 10000,
-			message: expect.stringContaining("10,000"),
 		});
 	});
 
@@ -132,10 +130,7 @@ describe("useBid", () => {
 			await result.current.submit(50000);
 		});
 
-		expect(result.current.error).toEqual({
-			type: "auction_ended",
-			message: expect.stringContaining("ended"),
-		});
+		expect(result.current.error).toEqual({ type: "auction_ended" });
 		expect(mockSubmitBid).not.toHaveBeenCalled();
 	});
 
@@ -147,10 +142,7 @@ describe("useBid", () => {
 			await result.current.submit(50000);
 		});
 
-		expect(result.current.error).toEqual({
-			type: "auction_ended",
-			message: expect.stringContaining("ended"),
-		});
+		expect(result.current.error).toEqual({ type: "auction_ended" });
 	});
 
 	it("rejects a negative bid amount", async () => {
@@ -164,7 +156,6 @@ describe("useBid", () => {
 		expect(result.current.error).toEqual({
 			type: "bid_too_low",
 			minimum: 10100,
-			message: expect.stringContaining("10,100"),
 		});
 	});
 
@@ -179,7 +170,6 @@ describe("useBid", () => {
 		expect(result.current.error).toEqual({
 			type: "bid_too_low",
 			minimum: 10100,
-			message: expect.stringContaining("10,100"),
 		});
 	});
 
@@ -207,10 +197,7 @@ describe("useBid", () => {
 			await result.current.buyNow();
 		});
 
-		expect(result.current.error).toEqual({
-			type: "auction_ended",
-			message: expect.stringContaining("ended"),
-		});
+		expect(result.current.error).toEqual({ type: "auction_ended" });
 	});
 
 	it("buyNow does nothing when buy_now_price is null", async () => {
@@ -233,10 +220,61 @@ describe("useBid", () => {
 			await result.current.submit(10100);
 		});
 
-		expect(result.current.error).toEqual({
-			type: "network",
-			message: "Vehicle not found.",
+		expect(result.current.error).toEqual({ type: "network" });
+	});
+
+	it("rejects NaN and non-integer bid amounts", async () => {
+		mockGetVehicle.mockReturnValue(makeLiveVehicle());
+		mockSubmitBid.mockClear();
+		const { result } = renderHook(() => useBid("v1"));
+
+		await act(async () => {
+			await result.current.submit(Number.NaN);
 		});
+		expect(result.current.error).toEqual({
+			type: "bid_too_low",
+			minimum: 10100,
+		});
+
+		await act(async () => {
+			await result.current.submit(10100.5);
+		});
+		expect(result.current.error).toEqual({
+			type: "bid_too_low",
+			minimum: 10100,
+		});
+
+		expect(mockSubmitBid).not.toHaveBeenCalled();
+	});
+
+	it("rejects bid above MAX_BID upper bound", async () => {
+		mockGetVehicle.mockReturnValue(makeLiveVehicle());
+		mockSubmitBid.mockClear();
+		const { result } = renderHook(() => useBid("v1"));
+
+		await act(async () => {
+			await result.current.submit(999_999_999);
+		});
+		expect(result.current.error).toEqual({
+			type: "bid_too_low",
+			minimum: 10100,
+		});
+		expect(mockSubmitBid).not.toHaveBeenCalled();
+	});
+
+	it("buyNow uses current_bid + increment when buy_now_price is below it", async () => {
+		// Race: someone already bid above buy_now_price. Buy Now must not move price backwards.
+		mockGetVehicle.mockReturnValue(
+			makeLiveVehicle({ current_bid: 60000, buy_now_price: 50000 }),
+		);
+		mockSubmitBid.mockClear();
+		const { result } = renderHook(() => useBid("v1"));
+
+		await act(async () => {
+			await result.current.buyNow();
+		});
+
+		expect(mockSubmitBid).toHaveBeenCalledWith("v1", 60100);
 	});
 
 	it("clears error on successful subsequent bid", async () => {

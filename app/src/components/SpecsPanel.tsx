@@ -1,3 +1,4 @@
+import { cn } from "../lib/cn";
 import { formatOdometer } from "../lib/format";
 import type { Vehicle } from "../types";
 
@@ -6,6 +7,10 @@ type SpecsPanelProps = {
 };
 
 type SpecRow = { label: string; value: string; mono?: boolean };
+
+function titleCase(s: string): string {
+	return s.charAt(0).toUpperCase() + s.slice(1);
+}
 
 export function SpecsPanel({ vehicle }: SpecsPanelProps) {
 	const rows: SpecRow[] = [
@@ -16,6 +21,7 @@ export function SpecsPanel({ vehicle }: SpecsPanelProps) {
 		{ label: "Drivetrain", value: vehicle.drivetrain },
 		{ label: "Fuel Type", value: vehicle.fuel_type },
 		{ label: "Odometer", value: formatOdometer(vehicle.odometer_km) },
+		{ label: "Title", value: titleCase(vehicle.title_status) },
 		{ label: "Exterior", value: vehicle.exterior_color },
 		{ label: "Interior", value: vehicle.interior_color },
 	];
@@ -32,7 +38,10 @@ export function SpecsPanel({ vehicle }: SpecsPanelProps) {
 							{row.label}
 						</dt>
 						<dd
-							className={`text-sm text-text-primary ${row.mono ? "font-mono" : ""}`}
+							className={cn(
+								"text-sm text-text-primary",
+								row.mono && "font-mono",
+							)}
 						>
 							{row.value}
 						</dd>

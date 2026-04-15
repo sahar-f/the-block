@@ -6,6 +6,8 @@
 # Node
 node_modules/
 dist/
+dist-ssr/
+coverage/
 
 # Playwright
 test-results/
@@ -22,6 +24,8 @@ Desktop.ini
 
 # Editor
 .vscode/*
+!.vscode/extensions.json
+.idea/
 *.swp
 *.swo
 

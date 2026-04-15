@@ -247,11 +247,7 @@ describe("BidPanel", () => {
 	});
 
 	it("shows bid_too_low error with minimum amount", () => {
-		mockBidState.error = {
-			type: "bid_too_low",
-			minimum: 15500,
-			message: "Bid too low",
-		};
+		mockBidState.error = { type: "bid_too_low", minimum: 15500 };
 		render(
 			<BidPanel
 				vehicle={makeVehicle({ current_bid: 15000 })}
@@ -264,19 +260,13 @@ describe("BidPanel", () => {
 	});
 
 	it("shows auction_ended error message", () => {
-		mockBidState.error = {
-			type: "auction_ended",
-			message: "Ended",
-		};
+		mockBidState.error = { type: "auction_ended" };
 		render(<BidPanel vehicle={makeVehicle()} now={Date.now()} />);
 		expect(screen.getByText(/this auction has ended/i)).toBeInTheDocument();
 	});
 
 	it("shows network error fallback", () => {
-		mockBidState.error = {
-			type: "network",
-			message: "Boom",
-		};
+		mockBidState.error = { type: "network" };
 		render(<BidPanel vehicle={makeVehicle()} now={Date.now()} />);
 		expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
 	});
@@ -308,6 +298,39 @@ describe("BidPanel", () => {
 		fireEvent.change(input, { target: { value: "14000" } });
 		expect(input.getAttribute("aria-invalid")).toBe("true");
 		expect(input.className).toContain("border-error");
+	});
+
+	it("rejects non-integer input (decimal, scientific) with visual signal AND blocked submit", () => {
+		// Note: type="number" inputs reject alpha keystrokes at the browser/jsdom
+		// level, so we only assert the inputs a real user can produce.
+		render(
+			<BidPanel
+				vehicle={makeVehicle({ current_bid: 15000 })}
+				now={Date.now()}
+			/>,
+		);
+		const input = screen.getByLabelText(/your bid/i) as HTMLInputElement;
+
+		for (const bad of ["15100.5", "1e5"]) {
+			fireEvent.change(input, { target: { value: bad } });
+			expect(input.getAttribute("aria-invalid")).toBe("true");
+			expect(input.className).toContain("border-error");
+			expect(
+				screen.getByText(/enter a whole dollar amount/i),
+			).toBeInTheDocument();
+			fireEvent.click(screen.getByRole("button", { name: /place a bid/i }));
+			expect(mockSubmit).not.toHaveBeenCalled();
+		}
+
+		// Empty input: neutral (no error flash mid-edit)
+		fireEvent.change(input, { target: { value: "" } });
+		expect(input.getAttribute("aria-invalid")).not.toBe("true");
+		expect(input.className).not.toContain("border-error");
+
+		// Sanity: a valid integer above min still submits
+		fireEvent.change(input, { target: { value: "15200" } });
+		fireEvent.click(screen.getByRole("button", { name: /place a bid/i }));
+		expect(mockSubmit).toHaveBeenCalledWith(15200);
 	});
 
 	it("clears below-min indicator once typed amount reaches minimum", () => {
