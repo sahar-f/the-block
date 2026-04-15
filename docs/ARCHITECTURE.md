@@ -183,6 +183,7 @@ This gives the bid panel enough context to render specific messages without stri
 | `ImageGallery` | Thumbnail strip + main image display. Click to switch. | ~70 lines |
 | `SpecsPanel` | Key-value grid: engine, transmission, drivetrain, fuel_type, odometer, body_style, colors. | ~60 lines |
 | `ConditionPanel` | Condition grade badge + report text + damage notes list with warning icons. | ~50 lines |
+| `ConditionSummary` | AI condition summary card + CarFax Canada outbound link. Returns null when `condition_summary` is absent. | ~50 lines |
 | `BidPanel` | Current bid (large amber), bid count, starting bid, reserve status, bid input, submit button, buy now. Handles real-time bid updates, "ended while away" message, typed error messages. Sticky on mobile. | ~100 lines |
 
 **ConditionPanel / SpecsPanel separation justification:** They represent distinct buyer trust signals — specs answer "what am I buying," condition answers "what's wrong with it." Different data shapes (key-value pairs vs grade + prose + damage list), different visual treatments, independent test suites.
@@ -484,6 +485,36 @@ type SortOption =
 - `npm run build` produces clean output
 - App works with no env vars (JSON fallback)
 - App works with Supabase env vars (real-time mode)
+
+---
+
+## 11. Build-Time AI Enrichment
+
+**`scripts/enrich.mjs`** generates a `condition_summary` per vehicle via Claude Haiku 4.5 at build time, writing results into `app/data/vehicles.json`. This mirrors what an ingest pipeline would look like in production — enrichment runs when inventory moves, not on the buyer's hot path.
+
+### Why build-time, not runtime
+
+- **Zero-config contract preserved.** The evaluator clones the repo and runs `npm install && npm run dev` with no env vars; the enriched data ships in the committed JSON. Runtime generation would require every evaluator to set `ANTHROPIC_API_KEY`.
+- **No LLM latency on detail view.** Buyer clicks a vehicle → detail page renders instantly. Runtime generation would add a 2–3 second loading state per cold vehicle.
+- **No third-party uptime dependency in the demo.** If the Anthropic API is down during a walkthrough, nothing breaks.
+
+### Usage
+
+```bash
+cd app && npm run enrich
+```
+
+Requires `ANTHROPIC_API_KEY` in `app/.env` (see `app/.env.example`). Idempotent across completed runs — re-running only fills in vehicles still missing the field. Exits non-zero if any vehicle ends the run un-enriched, so CI catches incomplete data.
+
+### Failure modes
+
+- API error or parse failure for a single vehicle → that vehicle's field is left absent, logged, and the process continues. Re-run to retry.
+- Invalid response (hallucinated price, HTML smuggling, length out of bounds) → rejected and logged. Re-run to retry.
+- Mid-run Ctrl-C → in-memory progress discarded (single end-of-run write). Re-run resumes from the last committed state. Full run is ~2 minutes for 200 vehicles.
+
+### Production shape (stretch, not built)
+
+In a real OPENLANE-shaped pipeline, the same prompt would run inside an ingest worker triggered when an inspection report is finalized — not on a batch script run by a human. The script's structure (prompt → parse → validate → persist) maps directly onto that worker's hot loop.
 
 ---
 

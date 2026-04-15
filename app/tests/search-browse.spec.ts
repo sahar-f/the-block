@@ -90,5 +90,19 @@ test.describe("Search and Browse", () => {
 			(await ended.count()) > 0 ||
 			(await upcoming.count()) > 0;
 		expect(bidSectionVisible).toBe(true);
+
+		await expect(
+			page.getByRole("heading", { name: /condition summary/i }),
+		).toBeVisible();
+
+		const carfaxLink = page.getByRole("link", {
+			name: /Check market value on CarFax Canada/i,
+		});
+		await expect(carfaxLink).toHaveAttribute(
+			"href",
+			"https://www.carfax.ca/whats-my-car-worth/car-value",
+		);
+		await expect(carfaxLink).toHaveAttribute("target", "_blank");
+		await expect(carfaxLink).toHaveAttribute("rel", "noopener noreferrer");
 	});
 });

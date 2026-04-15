@@ -21,8 +21,7 @@ features done adequately.
    no secrets in code, no dangerouslySetInnerHTML, no eval.
 5. **Intentional design** — every visual decision is deliberate. Nothing looks
    accidental. The UI should feel designed, not generated. It must impress.
-6. **Verify** — Verify every change - make sure no bugs or errors are introduced. 
-    Simplify after.
+6. **Verify** — Verify and evaluate every change using a subagent - make sure no bugs or  errors are introduced. Simplify and iterate if until no major gaps, bugs or errors.
 
 ## Tech Stack
 - **Framework**: React 19, functional components, hooks only
@@ -205,6 +204,7 @@ This UI will be shown to interviewers — it must look exceptional.
 - **Auction**: status badge, current_bid (large amber), bid_count, starting_bid, reserve status, buy_now_price (if set)
 - **Dealership**: selling_dealership, city, province
 - **Bid action**: prominent button, sticky on mobile
+- **AI Condition Summary**: condition_summary — 2-sentence AI-generated condition read.
 
 ## Business Logic
 
@@ -306,6 +306,7 @@ feat: / fix: / test: / refactor: / style: / docs: / chore:
 5. Quality: Accessibility audit on each page
 6. Data: Supabase MCP for all database operations
 7. Deploy: Vercel MCP for deployment and log checking
+8. Build-time data enrichment: enrich script pre-computes condition_summary per vehicle via `@anthropic-ai/sdk`.
  
 ## Do NOT
 - Use `any`, `@ts-ignore`, `@ts-expect-error`

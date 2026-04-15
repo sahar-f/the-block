@@ -3,6 +3,7 @@ import { useEffect } from "react";
 import { Link, useParams } from "react-router";
 import { BidPanel } from "../components/BidPanel";
 import { ConditionPanel } from "../components/ConditionPanel";
+import { ConditionSummary } from "../components/ConditionSummary";
 import { ImageGallery } from "../components/ImageGallery";
 import { DetailSkeleton } from "../components/Skeleton";
 import { SpecsPanel } from "../components/SpecsPanel";
@@ -103,7 +104,8 @@ export function VehiclePage() {
 							damageNotes={vehicle.damage_notes}
 						/>
 					</div>
-					<div className="lg:col-span-5">
+					<div className="space-y-6 lg:col-span-5">
+						<ConditionSummary vehicle={vehicle} />
 						<div className="sticky bottom-0 left-0 right-0 z-10 -mx-4 border-t border-border bg-page/95 p-4 backdrop-blur-sm sm:-mx-6 lg:static lg:top-8 lg:mx-0 lg:border-0 lg:bg-transparent lg:p-0 lg:backdrop-blur-0">
 							<BidPanel vehicle={vehicle} now={now} />
 						</div>

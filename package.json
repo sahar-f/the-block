@@ -1,0 +1,16 @@
+{
+  "name": "the-block",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Script-only root for build-time enrichment and Supabase seed. App lives in ./app.",
+  "type": "commonjs",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sahar-f/the-block.git"
+  },
+  "homepage": "https://github.com/sahar-f/the-block#readme",
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.89.0",
+    "@supabase/supabase-js": "^2.103.0"
+  }
+}
