@@ -14,7 +14,7 @@ export function ConditionSummary({ vehicle }: ConditionSummaryProps) {
 	return (
 		<aside
 			aria-labelledby="condition-summary-heading"
-			className="rounded-lg border border-border bg-surface p-5"
+			className="rounded-2xl border border-accent/20 bg-gradient-to-br from-accent/5 to-accent-to/5 p-6"
 		>
 			<h2
 				id="condition-summary-heading"
@@ -34,7 +34,7 @@ export function ConditionSummary({ vehicle }: ConditionSummaryProps) {
 					target="_blank"
 					rel="noopener noreferrer"
 					aria-label="Check market value on CarFax Canada (opens in new tab)"
-					className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+					className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-accent hover:text-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 				>
 					Check market value on CarFax Canada
 					<ExternalLink className="size-3.5" aria-hidden="true" />

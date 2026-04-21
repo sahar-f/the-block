@@ -33,7 +33,7 @@ test.describe("Search and Browse", () => {
 		expect(firstCardText).toMatch(/[A-Z][a-z]+,\s+[A-Z][\w\s]+\s+·\s+\S+/);
 
 		// Type "Ford" in the search input
-		await page.getByRole("textbox", { name: "Search vehicles" }).fill("Ford");
+		await page.getByRole("searchbox", { name: "Search vehicles" }).fill("Ford");
 
 		// URL reflects the search after debounce
 		await expect(page).toHaveURL(/[?&]query=Ford/, { timeout: 5_000 });
@@ -43,8 +43,13 @@ test.describe("Search and Browse", () => {
 			.poll(async () => gridCards(page).count(), { timeout: 5_000 })
 			.toBeLessThan(initialCount);
 
-		// Verify all visible card titles contain "Ford" (case-insensitive)
-		const titles = await gridCards(page).locator("h3").allInnerTexts();
+		// Verify all card titles contain "Ford" (case-insensitive).
+		// Use allTextContents() rather than allInnerTexts() — motion's entrance
+		// animation on newly-filtered cards may briefly hold opacity at 0, which
+		// would make innerText (CSS-aware) return "" and flake this assertion.
+		// textContent is the right tool here: we want the semantic text, not
+		// what's visually rendered right this frame.
+		const titles = await gridCards(page).locator("h3").allTextContents();
 		expect(titles.length).toBeGreaterThan(0);
 		for (const title of titles) {
 			expect(title.toLowerCase()).toContain("ford");

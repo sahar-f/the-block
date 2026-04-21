@@ -6,9 +6,18 @@ type AuctionBadgeProps = {
 };
 
 const variants: Record<AuctionStatus, { bg: string; label: string }> = {
-	live: { bg: "bg-success/15 text-success", label: "Live" },
-	upcoming: { bg: "bg-blue-500/15 text-blue-400", label: "Upcoming" },
-	ended: { bg: "bg-border text-text-muted", label: "Ended" },
+	live: {
+		bg: "bg-success/15 text-success border border-success/30",
+		label: "Live",
+	},
+	upcoming: {
+		bg: "bg-gradient-to-r from-accent/15 to-accent-to/15 text-accent border border-accent/20",
+		label: "Upcoming",
+	},
+	ended: {
+		bg: "bg-text-muted/15 text-text-muted border border-text-muted/20",
+		label: "Ended",
+	},
 };
 
 export function AuctionBadge({ status }: AuctionBadgeProps) {

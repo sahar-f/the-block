@@ -39,7 +39,7 @@ export class ErrorBoundary extends Component<
 					</p>
 					<Link
 						to="/"
-						className="mt-6 inline-flex min-h-11 items-center rounded-lg bg-accent px-4 py-2 text-sm font-medium text-page transition-colors hover:bg-accent-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+						className="bg-accent-gradient mt-6 inline-flex min-h-11 items-center rounded-xl px-4 py-2 text-sm font-medium text-white shadow-lg transition-shadow hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 					>
 						Browse all vehicles
 					</Link>

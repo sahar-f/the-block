@@ -12,7 +12,7 @@ export function NotFoundPage() {
 			<p className="mt-2 text-text-secondary">Page not found</p>
 			<Link
 				to="/"
-				className="mt-6 inline-flex min-h-11 items-center rounded-lg bg-accent px-4 py-2 font-medium text-page transition-all hover:bg-accent-hover focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-page focus:outline-none"
+				className="bg-accent-gradient mt-6 inline-flex min-h-11 items-center rounded-xl px-4 py-2 font-medium text-white shadow-lg transition-shadow hover:shadow-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 			>
 				Browse all vehicles
 			</Link>

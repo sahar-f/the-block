@@ -10,7 +10,9 @@ export default defineConfig({
 	forbidOnly: !!process.env.CI,
 	retries: process.env.CI ? 2 : 0,
 	workers: process.env.CI ? 1 : undefined,
-	reporter: process.env.CI ? "list" : [["list"], ["html", { open: "never" }]],
+	// HTML report is generated in both CI and local so failures can be opened
+	// after the fact (CI uploads it as an artifact).
+	reporter: [["list"], ["html", { open: "never" }]],
 	use: {
 		baseURL: BASE_URL,
 		trace: "on-first-retry",

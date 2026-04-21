@@ -44,9 +44,9 @@ function getReserveLabel(vehicle: Vehicle): {
 }
 
 const reserveStyles: Record<ReserveTone, string> = {
-	neutral: "bg-blue-500/15 text-blue-400",
-	success: "bg-success/15 text-success",
-	muted: "bg-border text-text-muted",
+	neutral: "bg-white/20 text-white",
+	success: "bg-success/30 text-white",
+	muted: "bg-white/10 text-white/80",
 };
 
 function errorMessage(error: BidError): string {
@@ -149,165 +149,162 @@ export function BidPanel({ vehicle, now }: BidPanelProps) {
 				: "Ended";
 
 	return (
-		<aside
-			aria-label="Bidding"
-			className="rounded-lg border border-border bg-surface p-6"
-		>
-			<div className="mb-3 flex items-center justify-between gap-3">
-				<AuctionBadge status={auctionState.status} />
-				<span
-					className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${reserveStyles[reserve.tone]}`}
-				>
-					{reserve.label}
-				</span>
-			</div>
+		<aside aria-label="Bidding" className="space-y-4">
+			<div
+				id="bid-panel"
+				className="bg-accent-gradient rounded-2xl p-6 text-white shadow-lg"
+			>
+				<div className="mb-4 flex items-center justify-between gap-3">
+					<AuctionBadge status={auctionState.status} />
+					<span
+						className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${reserveStyles[reserve.tone]}`}
+					>
+						{reserve.label}
+					</span>
+				</div>
 
-			<div className="mb-2">
-				{!hasCurrentBid ? (
-					<p className="text-xs uppercase tracking-wider text-text-muted">
-						Starting bid
-					</p>
-				) : null}
+				<p className="text-xs uppercase tracking-wider opacity-80">
+					{hasCurrentBid ? "Current bid" : "Starting bid"}
+				</p>
 				<p
 					className={cn(
-						"font-mono text-3xl font-semibold text-accent",
+						"font-mono text-4xl font-bold",
 						priceFlash && "flash-accent",
 					)}
 				>
 					{formatCurrency(displayPrice)}
 				</p>
-				<p className="text-sm text-text-muted">
+				<p className="mt-1 text-sm opacity-90">
 					{vehicle.bid_count === 0
 						? "No bids yet — be the first!"
 						: `${String(vehicle.bid_count)} bid${vehicle.bid_count !== 1 ? "s" : ""}`}
 				</p>
+				<p className="mt-3 font-mono text-xs opacity-75">{countdownLabel}</p>
 			</div>
 
-			<p className="mb-4 font-mono text-xs text-text-secondary">
-				{countdownLabel}
-			</p>
+			<div className="rounded-2xl border border-border bg-surface p-6">
+				{endedWhileAway ? (
+					<div className="mb-4 rounded-md border border-border bg-page p-3 text-sm text-text-secondary">
+						This auction ended while you were away. Final price:{" "}
+						<span className="font-mono font-semibold text-text-primary">
+							{formatCurrency(displayPrice)}
+						</span>
+						.
+					</div>
+				) : null}
 
-			{endedWhileAway ? (
-				<div className="mb-4 rounded-md border border-border bg-page p-3 text-sm text-text-secondary">
-					This auction ended while you were away. Final price:{" "}
-					<span className="font-mono font-semibold text-text-primary">
-						{formatCurrency(displayPrice)}
-					</span>
-					.
-				</div>
-			) : null}
-
-			{lastAction === "buy_now" && lastBid ? (
-				<div
-					role="status"
-					className="rounded-lg border border-success/30 bg-success/10 p-4 text-center"
-				>
-					<CheckCircle
-						aria-hidden="true"
-						className="mx-auto mb-2 size-10 text-success bid-success-in"
-					/>
-					<p className="text-sm font-medium uppercase tracking-wider text-success">
-						Sold to you
-					</p>
-					<p className="mt-1 font-mono text-2xl font-semibold text-text-primary">
-						{formatCurrency(lastBid.amount)}
-					</p>
-					<p className="mt-2 text-xs text-text-muted">
-						You bought this vehicle. The auction is closed.
-					</p>
-				</div>
-			) : showBidControls ? (
-				<form onSubmit={handleSubmit} className="space-y-3">
-					<div>
-						<label
-							htmlFor="bid-amount"
-							className="mb-1.5 block text-xs uppercase tracking-wider text-text-muted"
-						>
-							Your Bid
-						</label>
-						<input
-							id="bid-amount"
-							type="number"
-							inputMode="numeric"
-							min={minBid}
-							step={MIN_BID_INCREMENT}
-							value={amount}
-							aria-invalid={showInvalid ? "true" : undefined}
-							aria-describedby="bid-amount-hint"
-							onChange={(e) => {
-								setAmount(e.target.value);
-							}}
-							className={cn(
-								"w-full rounded-lg border bg-page px-3 py-2.5 font-mono text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-amber-500",
-								showInvalid ? "border-error" : "border-border",
-							)}
+				{lastAction === "buy_now" && lastBid ? (
+					<div
+						role="status"
+						className="rounded-lg border border-success/30 bg-success/10 p-4 text-center"
+					>
+						<CheckCircle
+							aria-hidden="true"
+							className="mx-auto mb-2 size-10 text-success bid-success-in"
 						/>
-						<p
-							id="bid-amount-hint"
-							className={cn(
-								"mt-1 text-xs",
-								showInvalid ? "text-error" : "text-text-muted",
-							)}
-						>
-							{showInvalid && !isValidNumber
-								? "Enter a whole dollar amount."
-								: `Minimum: ${formatCurrency(minBid)}`}
+						<p className="text-sm font-medium uppercase tracking-wider text-success">
+							Sold to you
+						</p>
+						<p className="mt-1 font-mono text-2xl font-semibold text-text-primary">
+							{formatCurrency(lastBid.amount)}
+						</p>
+						<p className="mt-2 text-xs text-text-muted">
+							You bought this vehicle. The auction is closed.
 						</p>
 					</div>
-
-					{error ? (
-						<p className="rounded-md bg-error/10 px-3 py-2 text-sm text-error">
-							{errorMessage(error)}
-						</p>
-					) : null}
-					{lastBid && lastAction === "bid" ? (
-						<div
-							role="status"
-							className="flex items-center gap-2 rounded-md bg-success/10 px-3 py-2 text-sm text-success"
-						>
-							<CheckCircle
-								aria-hidden="true"
-								className="size-5 shrink-0 bid-success-in"
+				) : showBidControls ? (
+					<form onSubmit={handleSubmit} className="space-y-3">
+						<div>
+							<label
+								htmlFor="bid-amount"
+								className="mb-1.5 block text-xs uppercase tracking-wider text-text-muted"
+							>
+								Your Bid
+							</label>
+							<input
+								id="bid-amount"
+								type="number"
+								inputMode="numeric"
+								min={minBid}
+								step={MIN_BID_INCREMENT}
+								value={amount}
+								aria-invalid={showInvalid ? "true" : undefined}
+								aria-describedby="bid-amount-hint"
+								onChange={(e) => {
+									setAmount(e.target.value);
+								}}
+								className={cn(
+									"w-full rounded-xl border bg-surface-subtle px-3 py-2.5 font-mono text-base text-text-primary focus:outline-none focus:ring-2 focus:ring-indigo-500",
+									showInvalid ? "border-error" : "border-border",
+								)}
 							/>
-							<span>Bid placed!</span>
+							<p
+								id="bid-amount-hint"
+								className={cn(
+									"mt-1 text-xs",
+									showInvalid ? "text-error" : "text-text-muted",
+								)}
+							>
+								{showInvalid && !isValidNumber
+									? "Enter a whole dollar amount."
+									: `Minimum: ${formatCurrency(minBid)}`}
+							</p>
 						</div>
-					) : null}
 
-					<button
-						type="submit"
-						disabled={isPending}
-						aria-label={`Place a bid on ${String(vehicle.year)} ${vehicle.make} ${vehicle.model}`}
-						className="w-full min-h-11 rounded-lg bg-accent py-2.5 font-medium text-page transition-all hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
-					>
-						{isPending
-							? "Placing bid…"
-							: `Place Bid — ${formatCurrency(safeAmount)}`}
-					</button>
+						{error ? (
+							<p className="rounded-md bg-error/10 px-3 py-2 text-sm text-error">
+								{errorMessage(error)}
+							</p>
+						) : null}
+						{lastBid && lastAction === "bid" ? (
+							<div
+								role="status"
+								className="flex items-center gap-2 rounded-md bg-success/10 px-3 py-2 text-sm text-success"
+							>
+								<CheckCircle
+									aria-hidden="true"
+									className="size-5 shrink-0 bid-success-in"
+								/>
+								<span>Bid placed!</span>
+							</div>
+						) : null}
 
-					{showBuyNow ? (
 						<button
-							type="button"
-							onClick={handleBuyNow}
+							type="submit"
 							disabled={isPending}
-							aria-label={`Buy now for ${formatCurrency(buyNowAmount)}`}
-							className="w-full min-h-11 rounded-lg border border-accent py-2.5 font-medium text-accent transition-all hover:bg-accent/10 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+							aria-label={`Place a bid on ${String(vehicle.year)} ${vehicle.make} ${vehicle.model}`}
+							className="bg-accent-gradient w-full min-h-11 rounded-xl py-3 font-semibold text-white shadow-lg transition-all hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
 						>
-							Buy Now — {formatCurrency(buyNowAmount)}
+							{isPending
+								? "Placing bid…"
+								: `Place Bid — ${formatCurrency(safeAmount)}`}
 						</button>
-					) : null}
-				</form>
-			) : auctionState.status === "ended" ? (
-				<div className="rounded-md border border-border bg-page p-3 text-center">
-					<p className="text-sm text-text-muted">Auction ended</p>
-					<p className="mt-1 font-mono text-lg font-semibold text-text-primary">
-						{formatCurrency(displayPrice)}
+
+						{showBuyNow ? (
+							<button
+								type="button"
+								onClick={handleBuyNow}
+								disabled={isPending}
+								aria-label={`Buy now for ${formatCurrency(buyNowAmount)}`}
+								className="w-full min-h-11 rounded-xl border-2 border-accent py-2.5 font-medium text-accent transition-all hover:bg-accent/10 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page"
+							>
+								Buy Now — {formatCurrency(buyNowAmount)}
+							</button>
+						) : null}
+					</form>
+				) : auctionState.status === "ended" ? (
+					<div className="rounded-xl border border-border bg-surface-subtle p-4 text-center">
+						<p className="text-sm text-text-muted">Auction ended</p>
+						<p className="mt-1 font-mono text-lg font-semibold text-text-primary">
+							{formatCurrency(displayPrice)}
+						</p>
+					</div>
+				) : (
+					<p className="text-sm text-text-muted">
+						Bidding opens in {formatTimeRemaining(auctionState.timeRemaining)}.
 					</p>
-				</div>
-			) : (
-				<p className="text-sm text-text-muted">
-					Bidding opens in {formatTimeRemaining(auctionState.timeRemaining)}.
-				</p>
-			)}
+				)}
+			</div>
 		</aside>
 	);
 }

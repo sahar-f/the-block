@@ -22,7 +22,7 @@ export function SortSelect({ value, onChange }: SortSelectProps) {
 				value={value}
 				onChange={(e) => onChange(e.target.value as SortOption)}
 				aria-label="Sort vehicles"
-				className="appearance-none min-h-11 rounded-lg border border-border bg-surface py-2.5 pl-3 pr-10 font-body text-sm text-text-primary cursor-pointer transition-colors hover:border-border-hover focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-page"
+				className="appearance-none min-h-11 rounded-xl border border-border bg-surface py-2.5 pl-4 pr-10 font-body text-sm text-text-primary cursor-pointer shadow-sm transition-colors hover:border-accent/40 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-page"
 			>
 				{SORT_OPTIONS.map((option) => (
 					<option key={option.value} value={option.value}>

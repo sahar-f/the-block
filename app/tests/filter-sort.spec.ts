@@ -30,9 +30,24 @@ test.describe("Filter and Sort", () => {
 		const totalCount = Number.parseInt(totalMatch[1], 10);
 		expect(totalCount).toBeGreaterThan(0);
 
-		// Open the filter panel and toggle SUV body_style
+		// Open the filter drawer and toggle SUV body_style. The name "SUV" also
+		// matches the hero CategoryChips pill (exclusive select), so scope the
+		// locator to the dialog to pick the drawer's pill unambiguously. The
+		// Body Style section can sit below the drawer fold; scroll the button to
+		// the CENTER of the viewport so the drawer's sticky gradient header
+		// doesn't cover it.
 		await page.getByRole("button", { name: /^Filters/ }).click();
-		await page.getByRole("button", { name: "SUV", pressed: false }).click();
+		const drawer = page.getByRole("dialog", { name: /filters/i });
+		await expect(drawer).toBeVisible();
+		const suvBtn = drawer.getByRole("button", {
+			name: "SUV",
+			pressed: false,
+		});
+		// The drawer has `scroll-pt-24` so the sticky gradient header doesn't
+		// cover items scrolled into view — default Playwright scroll-then-click
+		// works without force.
+		await suvBtn.scrollIntoViewIfNeeded();
+		await suvBtn.click();
 
 		// URL contains bodyStyle param
 		await expect(page).toHaveURL(/[?&]bodyStyle=SUV/);
@@ -59,10 +74,10 @@ test.describe("Filter and Sort", () => {
 		// Get first two visible card prices and verify ascending. Each grid card
 		// has exactly one price element rendered as font-mono text-xl in amber.
 		const visibleCards = gridCards(page);
-		// Prices live in the price <p> with font-mono text-xl text-accent classes —
+		// Prices live in the price <p> using the text-accent-gradient utility —
 		// pick by class to avoid catching the badge or other monospace text.
 		const priceTexts = await visibleCards
-			.locator("p.text-accent")
+			.locator("p.text-accent-gradient")
 			.allInnerTexts();
 		expect(priceTexts.length).toBeGreaterThanOrEqual(2);
 		const first = parseDollarAmount(priceTexts[0]);

@@ -66,5 +66,26 @@ export function useFilters() {
 		setSearchParams(new URLSearchParams(), { replace: true });
 	}, [setSearchParams]);
 
-	return { filters, setQuery, setFilter, setSort, setRange, clearFilters };
+	const setBodyStyleOnly = useCallback(
+		(value: string | null) => {
+			setSearchParams(
+				serializeFilters({
+					...filters,
+					bodyStyle: value === null ? [] : [value],
+				}),
+				{ replace: true },
+			);
+		},
+		[filters, setSearchParams],
+	);
+
+	return {
+		filters,
+		setQuery,
+		setFilter,
+		setSort,
+		setRange,
+		clearFilters,
+		setBodyStyleOnly,
+	};
 }

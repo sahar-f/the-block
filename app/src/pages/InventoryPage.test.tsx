@@ -1,7 +1,17 @@
 import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { MemoryRouter } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { ThemeProvider } from "../hooks/useTheme";
 import type { Vehicle } from "../types";
+
+function Wrap({ children }: { children: ReactNode }) {
+	return (
+		<ThemeProvider value={{ isDark: false, toggle: () => undefined }}>
+			<MemoryRouter>{children}</MemoryRouter>
+		</ThemeProvider>
+	);
+}
 
 const defaultFilters = {
 	query: "",
@@ -29,6 +39,7 @@ vi.mock("../hooks/useFilters", () => ({
 		setSort: vi.fn(),
 		setRange: vi.fn(),
 		clearFilters: vi.fn(),
+		setBodyStyleOnly: vi.fn(),
 	}),
 }));
 
@@ -95,14 +106,14 @@ describe("InventoryPage", () => {
 			error: null,
 		});
 		render(
-			<MemoryRouter>
+			<Wrap>
 				<InventoryPage />
-			</MemoryRouter>,
+			</Wrap>,
 		);
 		const skeletons = screen.getAllByRole("status");
 		expect(skeletons.length).toBe(8);
 		expect(
-			screen.getByRole("textbox", { name: "Search vehicles" }),
+			screen.getByRole("searchbox", { name: "Search vehicles" }),
 		).toBeInTheDocument();
 		expect(
 			screen.getByRole("combobox", { name: "Sort vehicles" }),
@@ -117,9 +128,9 @@ describe("InventoryPage", () => {
 			error: "Failed to load",
 		});
 		render(
-			<MemoryRouter>
+			<Wrap>
 				<InventoryPage />
-			</MemoryRouter>,
+			</Wrap>,
 		);
 		expect(screen.getByText("Something went wrong")).toBeInTheDocument();
 		expect(screen.getByText("Failed to load")).toBeInTheDocument();
@@ -134,9 +145,9 @@ describe("InventoryPage", () => {
 			error: null,
 		});
 		render(
-			<MemoryRouter>
+			<Wrap>
 				<InventoryPage />
-			</MemoryRouter>,
+			</Wrap>,
 		);
 		expect(
 			screen.getByText("No vehicles match your filters"),
@@ -152,9 +163,9 @@ describe("InventoryPage", () => {
 			error: null,
 		});
 		render(
-			<MemoryRouter>
+			<Wrap>
 				<InventoryPage />
-			</MemoryRouter>,
+			</Wrap>,
 		);
 		expect(screen.getByText("No vehicles available yet")).toBeInTheDocument();
 		expect(screen.queryByText("Clear all filters")).toBeNull();
@@ -169,9 +180,9 @@ describe("InventoryPage", () => {
 			error: null,
 		});
 		render(
-			<MemoryRouter>
+			<Wrap>
 				<InventoryPage />
-			</MemoryRouter>,
+			</Wrap>,
 		);
 		expect(screen.getByText("2 vehicles available")).toBeInTheDocument();
 		const links = screen.getAllByRole("link");
@@ -187,12 +198,12 @@ describe("InventoryPage", () => {
 			error: null,
 		});
 		render(
-			<MemoryRouter>
+			<Wrap>
 				<InventoryPage />
-			</MemoryRouter>,
+			</Wrap>,
 		);
 		expect(
-			screen.getByRole("textbox", { name: "Search vehicles" }),
+			screen.getByRole("searchbox", { name: "Search vehicles" }),
 		).toBeInTheDocument();
 		expect(
 			screen.getByRole("combobox", { name: "Sort vehicles" }),
@@ -209,9 +220,9 @@ describe("InventoryPage", () => {
 			error: null,
 		});
 		render(
-			<MemoryRouter>
+			<Wrap>
 				<InventoryPage />
-			</MemoryRouter>,
+			</Wrap>,
 		);
 		expect(screen.getByText("1 vehicle available")).toBeInTheDocument();
 	});

@@ -15,20 +15,27 @@ src/
   components/         — reusable UI components
     AuctionBadge.tsx        (+test)
     BidPanel.tsx            (+test)
+    CategoryChips.tsx       (+test)  — hero body_style chips (exclusive select)
     ConditionBadge.tsx      (+test)
     ConditionPanel.tsx      (+test)
+    ConditionSummary.tsx    (+test)
+    EndingSoonStrip.tsx     (+test)
     ErrorBoundary.tsx       (+test)
-    FilterPanel.tsx         (+test)
+    FilterPanel.tsx         (+test)  — right-side drawer (focus-trap-react)
     ImageGallery.tsx        (+test)
     SearchBar.tsx           (+test)
-    Skeleton.tsx            (+test) 
+    SiteHeader.tsx          (+test)  — shared sticky header with gradient logo
+    Skeleton.tsx            (+test)
     SortSelect.tsx          (+test)
     SpecsPanel.tsx          (+test)
+    StatsBar.tsx            (+test)
+    ThemeToggle.tsx         (+test)  — Sun/Moon button, toggles .dark on <html>
     VehicleCard.tsx         (+test)
   hooks/              — custom hooks (architectural boundaries)
     useBid.ts               (+test)
-    useFilters.ts           (+test)
+    useFilters.ts           (+test)  — exposes setBodyStyleOnly for CategoryChips
     useNow.ts               (+test)
+    useTheme.ts             (+test)  — localStorage + prefers-color-scheme, ThemeProvider context
     useVehicle.ts           (+test)
     useVehicles.ts          (+test)
   lib/                — pure functions, utilities, constants, data layer
@@ -476,19 +483,48 @@ type SortOption =
 - Build succeeds
 - Manual browser verification of the feature
 
-### End-to-end (before submission):
+### End-to-end (before submission + in CI):
+
+GitHub Actions CI is a two-job gated pipeline (`.github/workflows/ci.yml`):
+1. `check` — typecheck + biome + vitest + build; fails fast on cheap things (~1 min).
+2. `e2e` — `needs: check`; installs Chromium with `--with-deps`, runs Playwright against the JSON fallback (zero Supabase secrets), uploads `playwright-report/` as a 7-day-retention artifact on failure.
+
 - All unit/integration tests pass
-- 3 Playwright E2E flows pass:
+- Playwright E2E flows pass:
   1. Search "Ford" → results → click vehicle → detail loads
   2. Open live vehicle → place bid → confirm → state updates
   3. Filter SUV → sort price low → verify order
+  4. Buy Now → confirm → "Sold to you" state
+  5. Filter drawer Esc closes → focus returns to trigger (a11y)
+  6. Theme toggle → reload → `.dark` class persists (no FOUC)
+  7. Category chip replace semantics (chip replaces bodyStyle array)
+  8. Reduced motion → hover does not translate card
+  9. Reserve price never rendered as a number
 - `npm run build` produces clean output
 - App works with no env vars (JSON fallback)
 - App works with Supabase env vars (real-time mode)
 
 ---
 
-## 11. Build-Time AI Enrichment
+## 11. Route-Based Code Splitting and Error Surfaces
+
+`/vehicles/:id` and `*` load via React Router v7's `lazy` field — the inventory landing page ships without the detail page's bid/gallery/specs code. Every new route inherits the split with four lines of config; Vite auto-preloads the chunk via `<link rel="modulepreload">` so perceived nav latency is near-zero. Vendor chunking is held in reserve until RUM data shows it's needed.
+
+```ts
+{
+  path: "/vehicles/:id",
+  lazy: async () => {
+    const { VehiclePage } = await import("./pages/VehiclePage");
+    return { Component: VehiclePage };
+  },
+}
+```
+
+A root-level route `ErrorBoundary` uses `useRouteError()` and a shared helper to detect chunk-load failures across engines (Chrome/Firefox: "Failed to fetch dynamically imported module"; Safari: "Importing a module script failed.") — that failure mode hits users on stale HTML after a deploy, so the UI shows a Reload CTA; every other route error gets a "Browse all vehicles" Link. `HydrateFallback` returns `null` (no SSR, no loaders, and RR v7 requires the field whenever `lazy` is used).
+
+---
+
+## 12. Build-Time AI Enrichment
 
 **`scripts/enrich.mjs`** generates a `condition_summary` per vehicle via Claude Haiku 4.5 at build time, writing results into `app/data/vehicles.json`. This mirrors what an ingest pipeline would look like in production — enrichment runs when inventory moves, not on the buyer's hot path.
 

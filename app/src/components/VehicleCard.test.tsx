@@ -168,6 +168,55 @@ describe("VehicleCard", () => {
 		expect(screen.queryByText(/\d+m \d+s/)).toBeNull();
 	});
 
+	it("renders as a single link with no nested button", () => {
+		renderCard();
+		const link = screen.getByRole("link");
+		expect(link.querySelectorAll('[role="button"]')).toHaveLength(0);
+		expect(link.querySelectorAll("button")).toHaveLength(0);
+	});
+
+	it("shows Featured badge when condition >= 4.5 and live", () => {
+		renderCard({ condition_grade: 4.7 });
+		expect(screen.getByText(/featured/i)).toBeInTheDocument();
+	});
+
+	it("does not show Featured badge when condition < 4.5", () => {
+		renderCard({ condition_grade: 4.4 });
+		expect(screen.queryByText(/featured/i)).toBeNull();
+	});
+
+	it("does not show Featured badge for non-live auctions", () => {
+		vi.mocked(getAuctionStatus).mockReturnValueOnce({
+			status: "ended" as const,
+			timeRemaining: 0,
+		});
+		renderCard({ condition_grade: 4.8 });
+		expect(screen.queryByText(/featured/i)).toBeNull();
+	});
+
+	it("moves lot badge to bottom-left when Featured is shown", () => {
+		renderCard({ condition_grade: 4.7, lot: "A-0001" });
+		const lot = screen.getByText("A-0001");
+		expect(lot.className).toContain("bottom-3");
+		expect(lot.className).toContain("left-3");
+	});
+
+	it("renders 'View details' affordance", () => {
+		renderCard();
+		expect(screen.getByText(/view details/i)).toBeInTheDocument();
+	});
+
+	it("renders 2x2 spec grid with year, odometer, condition, status", () => {
+		renderCard({
+			year: 2024,
+			odometer_km: 47731,
+			condition_grade: 4.0,
+		});
+		expect(screen.getByText("2024")).toBeInTheDocument();
+		expect(screen.getByText(/47,731\s*km/)).toBeInTheDocument();
+		expect(screen.getByText("4.0")).toBeInTheDocument();
+	});
+
 	it("shows Car icon fallback when image fails to load", () => {
 		renderCard({ year: 2024, make: "Toyota", model: "Camry" });
 		const img = screen.getByAltText("2024 Toyota Camry");

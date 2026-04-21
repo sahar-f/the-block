@@ -13,7 +13,7 @@ export function ConditionPanel({
 	damageNotes,
 }: ConditionPanelProps) {
 	return (
-		<section className="rounded-lg border border-border bg-surface p-6">
+		<section className="rounded-2xl border border-border bg-surface-subtle p-6">
 			<div className="mb-4 flex items-center gap-3">
 				<h2 className="font-heading text-xl font-semibold text-text-primary">
 					Condition

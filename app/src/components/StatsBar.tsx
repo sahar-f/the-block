@@ -36,7 +36,7 @@ export function StatsBar({ vehicles, now }: StatsBarProps) {
 	}, [vehicles, now]);
 
 	return (
-		<div className="grid grid-cols-2 gap-3 sm:flex sm:items-center sm:gap-0 sm:divide-x sm:divide-border/50">
+		<div className="flex flex-wrap items-center gap-x-5 gap-y-2 rounded-xl border border-border bg-surface px-4 py-2 text-xs text-text-secondary">
 			<Stat label="Vehicles" value={String(stats.total)} />
 			<Stat label="Live" value={String(stats.liveCount)} pulse />
 			<Stat label="Ending Soon" value={String(stats.endingSoonCount)} />
@@ -55,16 +55,16 @@ function Stat({ label, value, pulse }: StatProps) {
 	return (
 		<div
 			data-stat={label}
-			className="flex items-center gap-2 sm:px-4 sm:first:pl-0 sm:last:pr-0"
+			className="inline-flex items-center gap-1.5 whitespace-nowrap"
 		>
 			{pulse ? (
 				<span
 					aria-hidden="true"
-					className="size-2 rounded-full bg-success animate-pulse"
+					className="size-1.5 rounded-full bg-success animate-pulse"
 				/>
 			) : null}
-			<span className="font-semibold text-text-primary">{value}</span>
-			<span className="text-sm text-text-secondary">{label}</span>
+			<span className="text-text-muted">{label}</span>
+			<span className="font-mono font-semibold text-text-primary">{value}</span>
 		</div>
 	);
 }

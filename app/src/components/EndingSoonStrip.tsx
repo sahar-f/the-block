@@ -1,4 +1,4 @@
-import { Clock } from "lucide-react";
+import { Flame } from "lucide-react";
 import { useMemo } from "react";
 import { Link } from "react-router";
 import { getAuctionStatus, parseAuctionStart } from "../lib/auction";
@@ -36,9 +36,9 @@ export function EndingSoonStrip({ vehicles, now }: EndingSoonStripProps) {
 	if (endingSoon.length === 0) return null;
 
 	return (
-		<section>
-			<h2 className="mb-3 flex items-center gap-2 text-sm font-medium text-text-secondary">
-				<Clock aria-hidden="true" className="size-4" />
+		<section className="rounded-3xl border border-border bg-surface p-6">
+			<h2 className="mb-4 flex items-center gap-2 font-heading text-lg font-semibold text-text-primary">
+				<Flame aria-hidden="true" className="size-5 text-accent" />
 				Ending Soon
 			</h2>
 			<div className="flex gap-3 overflow-x-auto pb-2 snap-x snap-mandatory [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -46,19 +46,19 @@ export function EndingSoonStrip({ vehicles, now }: EndingSoonStripProps) {
 					<Link
 						key={vehicle.id}
 						to={`/vehicles/${vehicle.id}`}
-						className="flex min-w-[200px] snap-start items-center gap-3 rounded-lg border border-border bg-surface p-3 transition-colors hover:border-border-hover focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page focus-visible:outline-none"
+						className="flex min-w-[220px] snap-start items-center gap-3 rounded-2xl border border-border bg-surface-subtle p-3 transition-colors hover:border-accent/40 focus-visible:ring-2 focus-visible:ring-indigo-500 focus-visible:ring-offset-2 focus-visible:ring-offset-page focus-visible:outline-none"
 					>
 						<img
 							src={getVehicleImageUrl(vehicle)}
 							alt={`${vehicle.year} ${vehicle.make} ${vehicle.model}`}
 							loading="lazy"
-							className="size-14 shrink-0 rounded-md object-cover"
+							className="size-14 shrink-0 rounded-xl object-cover"
 						/>
 						<div className="min-w-0">
 							<p className="truncate text-sm font-medium text-text-primary">
 								{vehicle.year} {vehicle.make} {vehicle.model}
 							</p>
-							<p className="font-mono text-sm font-semibold text-accent">
+							<p className="text-accent-gradient font-mono text-sm font-semibold">
 								{formatCurrency(getDisplayPrice(vehicle))}
 							</p>
 							<p className="font-mono text-xs text-text-muted">

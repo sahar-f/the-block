@@ -20,7 +20,7 @@ describe("SearchBar", () => {
 		const onChange = vi.fn();
 		render(<SearchBar value="" onChange={onChange} />);
 
-		const input = screen.getByRole("textbox", { name: "Search vehicles" });
+		const input = screen.getByRole("searchbox", { name: "Search vehicles" });
 		fireEvent.change(input, { target: { value: "Ford" } });
 
 		expect(onChange).not.toHaveBeenCalled();
@@ -34,7 +34,7 @@ describe("SearchBar", () => {
 		const onChange = vi.fn();
 		render(<SearchBar value="" onChange={onChange} />);
 
-		const input = screen.getByRole("textbox", { name: "Search vehicles" });
+		const input = screen.getByRole("searchbox", { name: "Search vehicles" });
 		fireEvent.change(input, { target: { value: "F" } });
 
 		act(() => {
@@ -62,7 +62,7 @@ describe("SearchBar", () => {
 		const { rerender } = render(<SearchBar value="old" onChange={vi.fn()} />);
 		rerender(<SearchBar value="new" onChange={vi.fn()} />);
 
-		const input = screen.getByRole("textbox", {
+		const input = screen.getByRole("searchbox", {
 			name: "Search vehicles",
 		}) as HTMLInputElement;
 		expect(input.value).toBe("new");

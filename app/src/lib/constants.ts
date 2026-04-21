@@ -6,3 +6,4 @@ export const AWAY_THRESHOLD_MS = 30_000;
 export const SEARCH_DEBOUNCE_MS = 300;
 export const ENDING_SOON_MS = 60 * 60 * 1000;
 export const PRICE_FLASH_MS = 600;
+export const FEATURED_CONDITION_THRESHOLD = 4.5;

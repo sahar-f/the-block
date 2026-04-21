@@ -129,12 +129,16 @@ The result is an app where each new feature — auth, proxy bidding, watchlist, 
 
 **Named exports only, no default exports.** Import lists stay explicit, refactors and editor auto-import behave deterministically. [CLAUDE.md](CLAUDE.md) codifies it as a project-wide rule.
 
+**Route-based code splitting over vendor chunking.** `VehiclePage` and `NotFoundPage` load via React Router v7's `lazy` field; Vite preloads the chunk on card hover via the router manifest. Scales with every new route; vendor chunks would rot as deps shift. A root-level route `ErrorBoundary` detects chunk-load failures across Chrome/Firefox/Safari and shows a branded Reload CTA for the stale-HTML-after-deploy case.
+
 ## Testing
 
-- **217 unit and component tests** across 22 files. Every component has a co-located `.test.tsx`. Tests verify behavior through `screen.getByRole` and explicit user interactions, not implementation detail.
-- **4 Playwright E2E specs** covering the three challenge flows plus Buy Now: search → detail, place-bid validation + success, filter + sort, and the Buy Now confirmation flow. The search-browse spec also asserts the AI Condition Summary card and CarFax link attributes.
+- **244 unit and component tests** across 26 files. Every component has a co-located `.test.tsx`. Tests verify behavior through `screen.getByRole` and explicit user interactions, not implementation detail.
+- **9 Playwright E2E flows** covering the three challenge flows, Buy Now, drawer a11y + focus restoration, theme persistence across reloads, category-chip replace semantics, `prefers-reduced-motion` compliance, and a reserve-price-leak guard.
 - **TDD on the bidding flow specifically.** Highest-risk feature; tests locked in the contract before implementation.
+- **E2E runs against the JSON fallback** — zero Supabase secrets needed in CI, reproducible by any evaluator.
 - **Strict TypeScript, zero `any`, zero `@ts-ignore`, zero `@ts-expect-error`.** Biome handles both lint and format; CI gates on both.
+- **CI is a two-job gated pipeline** — fast checks (typecheck + biome + vitest + build) must pass before Playwright runs; `playwright-report/` uploads as an artifact on failure.
 
 One command runs the entire verification suite from `app/`:
 
@@ -147,7 +151,7 @@ npm run typecheck && npm run lint && npm run test && npm run build && npm run te
 - **Supabase auth for multi-user.** For production grade: replace `bidder_session` with `auth.uid()`, update RLS to check JWT claims, wire email + OAuth signup, add per-user surfaces (my bids, watchlist). The architecture is shaped to absorb it.
 - **Proxy (max-bid) bidding with server-side locks.** For correct N-way semantics, buy-now ambush protection, and bid history surfacing. The `place_bid` RPC already owns bid-placement; extending it for a `max_amount` column and a recompute-winner step is the natural shape.
 - **Richer buyer features** — watchlist, side-by-side comparison view, saved searches, per-model market context (median odometer per year+model bucket).
-- **Design tooling in the loop.** Figma spec before implementation, component screenshots in CI, visual regression.
+- **Inventory pagination + windowed virtualization.** The grid renders all 200 filtered cards today; `content-visibility: auto` keeps paint costs tolerable but the DOM still carries the full list. For 10 000+ vehicles the right shape is `?page=N` URL state (shareable, browser-back works) backing a 24-card page. Filters and sort reset to page 1; `<Pagination />` sits under the grid. Additive, no API breakage — URL default of `page=1` means existing shared links keep working.
 - **Richer imagery.** Themed per-vehicle generated imagery replacing the dark placeholders.
 - **Preview deployments per PR, Lighthouse budgets, automated dependency updates.** The Vercel-backed auto-deploy is working; richer CI is the next layer.
 - **Multi-user real-time surface.** Public bid-history feed, concurrent-bidder count, Supabase presence channels. The `dataStore` subscription layer is already wired — only the UI surface was out of scope.

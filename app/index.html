@@ -5,6 +5,17 @@
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>The Block — Vehicle Auctions</title>
+		<script>
+			(() => {
+				let t;
+				try {
+					t = localStorage.theme;
+					if (t === "dark" || (!t && window.matchMedia && matchMedia("(prefers-color-scheme:dark)").matches)) {
+						document.documentElement.classList.add("dark");
+					}
+				} catch (_e) { /* no-op */ }
+			})();
+		</script>
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link
@@ -12,7 +23,7 @@
 			rel="stylesheet"
 		/>
 	</head>
-	<body class="bg-[#09090B] text-[#F4F4F5] antialiased">
+	<body class="bg-page text-text-primary antialiased">
 		<div id="root"></div>
 		<script type="module" src="/src/main.tsx"></script>
 	</body>

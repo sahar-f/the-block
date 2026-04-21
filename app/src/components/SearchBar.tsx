@@ -30,22 +30,24 @@ export function SearchBar({ value, onChange }: SearchBarProps) {
 	}, [onChange]);
 
 	return (
-		<div className="relative flex-1 rounded-lg transition-shadow focus-within:shadow-lg focus-within:shadow-amber-500/10">
-			<Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-text-muted" />
+		<div className="relative flex-1 rounded-2xl transition-shadow focus-within:shadow-lg focus-within:shadow-indigo-500/10">
+			<Search className="pointer-events-none absolute left-4 top-1/2 size-5 -translate-y-1/2 text-text-muted" />
 			<input
-				type="text"
+				type="search"
 				aria-label="Search vehicles"
 				placeholder="Search by make, model, year, VIN, or lot..."
 				value={inputValue}
 				onChange={(e) => setInputValue(e.target.value)}
-				className="w-full min-h-11 rounded-lg border border-border bg-surface py-2.5 pl-10 pr-11 font-body text-sm text-text-primary placeholder:text-text-muted transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-page focus:shadow-[0_0_0_4px_rgba(245,158,11,0.1)]"
+				// [&::-webkit-search-cancel-button]:appearance-none hides the
+				// browser's native clear — we render our own with a proper aria-label.
+				className="w-full min-h-11 rounded-2xl border border-border bg-surface/90 py-3 pl-11 pr-11 font-body text-sm text-text-primary backdrop-blur-sm transition-colors placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-page [&::-webkit-search-cancel-button]:appearance-none [&::-webkit-search-decoration]:appearance-none"
 			/>
 			{inputValue.length > 0 ? (
 				<button
 					type="button"
 					onClick={handleClear}
 					aria-label="Clear search"
-					className="absolute right-1 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded text-text-muted transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+					className="absolute right-1 top-1/2 inline-flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded text-text-muted transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
 				>
 					<X className="size-4" />
 				</button>

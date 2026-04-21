@@ -13,7 +13,7 @@ describe("AuctionBadge", () => {
 	it("renders Upcoming with blue styling, without dot", () => {
 		const { container } = render(<AuctionBadge status="upcoming" />);
 		const badge = screen.getByLabelText("Auction status: Upcoming");
-		expect(badge.className).toContain("text-blue-400");
+		expect(badge.className).toContain("text-accent");
 		expect(container.querySelector(".animate-pulse")).toBeNull();
 	});
 

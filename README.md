@@ -23,7 +23,9 @@ A local run works with zero env vars — the app falls back to a committed JSON 
 
 ## Architecture at a Glance
 
-Four folders under [app/src/](app/src/) — `components/`, `hooks/`, `lib/`, `pages/` — each with a single clear responsibility. It's a shape that keeps cognitive load bounded while the app is small and composes cleanly as features are added: a new developer can orient themselves in five minutes by reading the tree and [CLAUDE.md](CLAUDE.md), and every feature has exactly one right place for each of its pieces. Premature feature-folders would have cost more than they'd have saved at this scale. Deeper architectural discussion is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [SUBMISSION.md](SUBMISSION.md).
+Four folders under [app/src/](app/src/) — `components/`, `hooks/`, `lib/`, `pages/` — each with a single clear responsibility. It's a shape that keeps cognitive load bounded while the app is small and composes cleanly as features are added: a new developer can orient themselves in five minutes by reading the tree and [CLAUDE.md](CLAUDE.md), and every feature has exactly one right place for each of its pieces. Premature feature-folders would have cost more than they'd have saved at this scale.
+
+Non-landing routes lazy-load via React Router v7's `lazy` field with a route-level `ErrorBoundary` for chunk-load failures. CI is gated: fast checks first, then Playwright against the JSON fallback (no Supabase secrets required). Deeper architectural discussion is in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [SUBMISSION.md](SUBMISSION.md).
 
 ## AI Workflow
 
@@ -46,6 +48,7 @@ Built with Claude Code using **Claude Opus 4.6** (architecture, planning, multi-
 ### MCP servers
 
 - **Context7** — live library docs for Vite 6, Tailwind 4, React Router v7, Supabase JS v2, Playwright.
+- **Figma** — pulled the "Car Seller Inventory" Figma Make design directly, and screenshots via `get_design_context` + `ReadMcpResource`. Let the restyle adapt the design to our token system instead of eyeballing from screenshots.
 - **Supabase** — project, schema, RLS policies, `place_bid` RPC, realtime publication config, migrations.
 - **Vercel** — deploy, env vars, build log inspection; auto-deploy from `main`.
 - **Playwright** — screenshot-driven E2E debugging.

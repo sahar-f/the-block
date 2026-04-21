@@ -1,7 +1,17 @@
 import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { ThemeProvider } from "../hooks/useTheme";
 import type { Vehicle } from "../types";
+
+function Wrap({ children }: { children: ReactNode }) {
+	return (
+		<ThemeProvider value={{ isDark: false, toggle: () => undefined }}>
+			{children}
+		</ThemeProvider>
+	);
+}
 
 const mockUseVehicle = vi.fn();
 vi.mock("../hooks/useVehicle", () => ({
@@ -73,12 +83,14 @@ function makeVehicle(overrides: Partial<Vehicle> = {}): Vehicle {
 
 function renderAt(id: string) {
 	return render(
-		<MemoryRouter initialEntries={[`/vehicles/${id}`]}>
-			<Routes>
-				<Route path="/vehicles/:id" element={<VehiclePage />} />
-				<Route path="*" element={<div>NotFound</div>} />
-			</Routes>
-		</MemoryRouter>,
+		<Wrap>
+			<MemoryRouter initialEntries={[`/vehicles/${id}`]}>
+				<Routes>
+					<Route path="/vehicles/:id" element={<VehiclePage />} />
+					<Route path="*" element={<div>NotFound</div>} />
+				</Routes>
+			</MemoryRouter>
+		</Wrap>,
 	);
 }
 
