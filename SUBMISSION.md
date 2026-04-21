@@ -22,7 +22,7 @@ A local run works with zero env vars — the app falls back to the committed JSO
 
 ## Time Spent
 
-**~6 hours.**
+**~7 hours.**
 
 - Scaffold, Supabase schema, RLS, CI — 1h
 - Types, dual-backend data layer, clock singleton, session — 1h
@@ -33,6 +33,7 @@ A local run works with zero env vars — the app falls back to the committed JSO
 - Unit + E2E tests — 30m
 - Condition Summary feature with CarFax link — 45m
 - Vercel deploy + docs — 30m
+- UI upgrade (Figma MCP, lazy routes, CI E2E addition, favicon versioning) — 1h
 
 ## Assumptions and Scope
 
